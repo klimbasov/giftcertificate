@@ -1,0 +1,33 @@
+plugins {
+    id 'war'
+    id 'java'
+}
+
+def SpringVersion = '5.3.18'
+def javaxVersion = '4.0.1'
+def thymeleafVersion = '3.1.0.M1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    implementation group: 'org.springframework', name: 'spring-web', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-core', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-webmvc', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-context', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-aop', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-beans', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-expression', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-aspects', version: SpringVersion
+    compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: javaxVersion
+    implementation group: 'org.thymeleaf', name: 'thymeleaf-spring5', version: thymeleafVersion
+    implementation project(":service")
+}
+
+test {
+    useJUnitPlatform()
+}

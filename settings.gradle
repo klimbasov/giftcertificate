@@ -1,0 +1,5 @@
+rootProject.name = 'giftcertificate'
+include 'controller'
+include 'service'
+include 'dao'
+

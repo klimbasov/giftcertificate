@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group 'com.epam.esm'
+version '1.0-SNAPSHOT'
+
+def SpringVersion = '5.3.18'
+def JupiterVersion = '5.8.2'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: JupiterVersion
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: JupiterVersion
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-core', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-beans', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-context', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-aspects', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-expression', version: SpringVersion
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
+    implementation project(":dao")
+}
+
+test {
+    useJUnitPlatform()
+}
