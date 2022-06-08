@@ -2,19 +2,19 @@ package com.epam.esm.service;
 
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
-import com.epam.esm.service.exception.NoSuchObjectException;
+import com.epam.esm.service.exception.ext.NoSuchObjectException;
+import com.epam.esm.service.exception.ext.ObjectCanNotBeCreatedException;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CertificateService {
-    int add(CertificateDto certificateDto);
+    CertificateDto add(CertificateDto certificateDto) throws ObjectCanNotBeCreatedException;
 
-    void put(CertificateDto certificateDto) throws NoSuchObjectException;
+    void put(CertificateDto certificateDto) throws NoSuchObjectException, ObjectCanNotBeCreatedException;
 
-    Optional<CertificateDto> get(Integer id);
+    CertificateDto get(Integer id) throws NoSuchObjectException;
 
     void delete(Integer id);
 
-    Optional<List<CertificateDto>> get(SearchOptions searchOptions);
+    List<CertificateDto> get(SearchOptions searchOptions) throws NoSuchObjectException;
 }

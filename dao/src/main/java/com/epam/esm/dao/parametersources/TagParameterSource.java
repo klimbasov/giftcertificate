@@ -1,7 +1,6 @@
 package com.epam.esm.dao.parametersources;
 
 import com.epam.esm.dao.constant.TableNames;
-import com.epam.esm.dao.entity.Certificate;
 import com.epam.esm.dao.entity.Tag;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
@@ -13,9 +12,9 @@ import static java.util.Objects.nonNull;
 public class TagParameterSource implements SqlParameterSource {
     Map<String, Object> parameters;
 
-    public TagParameterSource(Tag tag){
+    public TagParameterSource(Tag tag) {
         parameters = new HashMap<>();
-        if(nonNull(tag)){
+        if (nonNull(tag)) {
             load(tag);
         }
     }

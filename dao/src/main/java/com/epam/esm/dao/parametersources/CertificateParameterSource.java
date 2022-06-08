@@ -6,16 +6,15 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 
 public class CertificateParameterSource implements SqlParameterSource {
     Map<String, Object> parameters;
 
-    public CertificateParameterSource(Certificate certificate){
+    public CertificateParameterSource(Certificate certificate) {
         parameters = new HashMap<>();
-        if(nonNull(certificate)){
+        if (nonNull(certificate)) {
             load(certificate);
         }
     }

@@ -12,10 +12,10 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan("com.epam.esm.dao")
 @Profile("dev")
-public class DaoConfiguration {
+public class DaoDevConfiguration {
 
     @Bean
-    public DataSource dataSource(){
+    public DataSource dataSource() {
         return new HikariDataSource(new HikariConfig("/db_test.properties"));
     }
 }

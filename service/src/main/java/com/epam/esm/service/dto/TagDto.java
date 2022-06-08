@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 
+import java.io.Serializable;
+
 @Value
 @AllArgsConstructor
-public class TagDto {
+public class TagDto implements Serializable {
     @NonNull
     Integer id;
     @NonNull

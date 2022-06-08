@@ -4,7 +4,6 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
@@ -13,8 +12,8 @@ public class CertificateTagButchInsertPreparedStatementSetter implements BatchPr
     Integer[] tagIds;
     int certificateId;
 
-    public CertificateTagButchInsertPreparedStatementSetter(int certificateId, Set<Integer> tagIds){
-        if(isNull(tagIds) || tagIds.isEmpty()){
+    public CertificateTagButchInsertPreparedStatementSetter(int certificateId, Set<Integer> tagIds) {
+        if (isNull(tagIds) || tagIds.isEmpty()) {
             throw new IllegalArgumentException();
         }
         this.certificateId = certificateId;

@@ -1,16 +1,30 @@
 package com.epam.esm.service.dto;
 
-import com.epam.esm.service.constant.SortingNames;
 import lombok.Builder;
 import lombok.Value;
+
+import static java.util.Objects.isNull;
 
 @Value
 @Builder(toBuilder = true)
 public class SearchOptions {
     @Builder.Default
-    private final String SORTING = SortingNames.INCR;
+    String sorting = "";
     @Builder.Default
-    private final String SUBNAME = "";
+    String subname = "";
     @Builder.Default
-    private final String SUBDESCRIPTION = "";
+    String subdescription = "";
+
+
+    public String getSorting() {
+        return isNull(sorting) ? "" : sorting;
+    }
+
+    public String getSubname() {
+        return isNull(subname) ? "" : subname;
+    }
+
+    public String getSubdescription() {
+        return isNull(subdescription) ? "" : subdescription;
+    }
 }

@@ -10,20 +10,23 @@ import com.epam.esm.dao.seters.CertificateTagButchInsertPreparedStatementSetter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
+import static com.epam.esm.dao.util.formatter.AlikeStringSqlFormatter.wrap;
 import static java.util.Objects.nonNull;
 
-@Component
+@Repository
 public class CertificateDaoImpl implements CertificateDao {
 
     JdbcTemplate template;
 
     @Autowired
-    public CertificateDaoImpl(DataSource dataSource){
+    public CertificateDaoImpl(DataSource dataSource) {
         this.template = new JdbcTemplate(dataSource);
     }
 
@@ -39,21 +42,20 @@ public class CertificateDaoImpl implements CertificateDao {
                         TableNames.Certificate.LAST_UPDATE_DATE,
                         TableNames.Certificate.DURATION);
         Number id = certificateInsert.executeAndReturnKey(new CertificateParameterSource(certificate));
-        addCertificateTags(certificate.getId(), tagIds);
+        addCertificateTags(id.intValue(), tagIds);
         return certificate.toBuilder().id(id.intValue()).build();
     }
 
     @Override
     public Optional<Certificate> read(int id) {
         Optional<Certificate> optionalEntity;
-        optionalEntity = Optional.ofNullable(template.queryForObject(Queries.Certificate.SELECT_BY_ID, new CertificateRowMapper(), id));
+        optionalEntity = template.query(Queries.Certificate.SELECT_BY_ID, new CertificateRowMapper(), id).stream().findAny();
         return optionalEntity;
     }
 
     @Override
-    public Optional<List<Certificate>> read(String name, String desc, String tag) {
-        List<Certificate> entityList = template.query(Queries.Certificate.SELECT, new CertificateRowMapper(), name, desc, tag);
-        return Optional.of(entityList);
+    public List<Certificate> read(String name, String desc, String tag) {
+        return template.query(Queries.Certificate.SELECT, new CertificateRowMapper(), wrap(name), wrap(desc), wrap(tag));
     }
 
     @Override
@@ -78,7 +80,7 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     private void addCertificateTags(int id, Set<Integer> tagIds) {
-        if(!tagIds.isEmpty() && nonNull(tagIds)){
+        if (nonNull(tagIds) && !tagIds.isEmpty()) {
             template.batchUpdate(Queries.CertificateTag.INSERT, new CertificateTagButchInsertPreparedStatementSetter(id, tagIds));
         }
     }
