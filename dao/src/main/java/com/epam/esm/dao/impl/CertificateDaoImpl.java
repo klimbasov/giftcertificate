@@ -59,8 +59,8 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     @Override
-    public void delete(int id) {
-        template.update(Queries.Certificate.DELETE, id);
+    public int delete(int id) {
+        return template.update(Queries.Certificate.DELETE, id);
     }
 
     @Override

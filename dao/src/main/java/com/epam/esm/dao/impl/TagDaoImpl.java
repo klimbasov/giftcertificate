@@ -4,7 +4,6 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.constant.Queries;
 import com.epam.esm.dao.constant.TableNames;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.dao.mappers.TagRowMapper;
 import com.epam.esm.dao.parametersources.TagParameterSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public Tag create(Tag tag) throws DaoException {
+    public Tag create(Tag tag) {
         int id = new SimpleJdbcInsert(template)
                 .withTableName(TableNames.Tag.TABLE_NAME)
                 .usingGeneratedKeyColumns(TableNames.Tag.ID)
@@ -57,7 +56,7 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public void delete(int id) {
-        template.update(Queries.Tag.DELETE, id);
+    public int delete(int id) {
+        return template.update(Queries.Tag.DELETE, id);
     }
 }

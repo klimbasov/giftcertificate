@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Matchers.*;
 
@@ -123,11 +124,12 @@ class CertificateServiceImplTest {
         });
 
 
-        Mockito.doNothing().when(certificateDao).delete(or(eq(1), eq(2)));
+        Mockito.doReturn(1).when(certificateDao).delete(or(eq(1), eq(2)));
+        Mockito.doReturn(0).when(certificateDao).delete(not(or(eq(1), eq(2))));
         Mockito.doNothing().when(certificateDao).update(any(Certificate.class), any(Set.class));
     }
 
-    private void configureTagDaoMock() throws DaoException {
+    private void configureTagDaoMock() {
         Tag tag1 = Tag.builder().id(1).name("name1").build();
         Tag tag3 = Tag.builder().id(3).name("name3").build();
         Tag tag4 = Tag.builder().id(4).name("name4").build();
@@ -264,7 +266,8 @@ class CertificateServiceImplTest {
         @Test
         @DisplayName("Options for nonexistent record passing")
         void readNonexistent() {
-            assertThrows(NoSuchObjectException.class, () -> certificateService.get(optionsForNonexistent));
+            List<CertificateDto> actual = assertDoesNotThrow(() -> certificateService.get(optionsForNonexistent));
+            assertTrue(actual.isEmpty());
         }
     }
 

@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.epam.esm.service.constant.ExceptionMessages.NO_SUCH_OBJECT;
+import static com.epam.esm.service.constant.ExceptionMessages.OBJECT_CAN_NOT_BE_CREATED;
 import static com.epam.esm.service.util.mapper.CertificateDtoEntityMapper.mapToDto;
 import static com.epam.esm.service.util.mapper.CertificateDtoEntityMapper.mapToEntity;
 import static com.epam.esm.service.util.sorting.SortingDirection.getSortingDirectionByAlias;
@@ -42,16 +44,11 @@ public class CertificateServiceImpl implements CertificateService {
         this.tagDao = tagDao;
     }
 
-    public static void sort(List<Certificate> list, SortingDirection direction) {
-        Sorter.sort(list, direction, Comparator.comparing(Certificate::getName));
-    }
-
     @Override
-    public CertificateDto add(CertificateDto certificateDto) throws ObjectCanNotBeCreatedException {
+    public CertificateDto add(CertificateDto certificateDto) {
         validateCreate(certificateDto);
         Certificate certificate = mapToEntity(certificateDto);
-        List<String> tagNames = certificateDto.getTags();
-        Set<Tag> tagSet = addTags(tagNames);
+        Set<Tag> tagSet = addTags(certificateDto.getTags());
         Set<Integer> tagIdSet = tagSet.stream()
                 .map(Entity::getId)
                 .collect(Collectors.toSet());
@@ -60,20 +57,19 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void put(CertificateDto certificateDto) throws NoSuchObjectException, ObjectCanNotBeCreatedException {
+    public void put(CertificateDto certificateDto) {
         validateUpdatePreMap(certificateDto);
-        int id = certificateDto.getId();
-        Certificate oldCertificate = certificateDao.read(id)
-                .orElseThrow(() -> new NoSuchObjectException("No such object ot update."));
+        Certificate oldCertificate = certificateDao.read(certificateDto.getId())
+                .orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
         Set<Integer> tagIds = getTagsIds(certificateDto);
         Certificate certificate = mapToEntity(certificateDto, oldCertificate);
         certificateDao.update(certificate, tagIds);
     }
 
     @Override
-    public CertificateDto get(Integer id) throws NoSuchObjectException {
+    public CertificateDto get(Integer id) {
         validateRead(id);
-        Certificate certificate = certificateDao.read(id).orElseThrow(NoSuchObjectException::new);
+        Certificate certificate = certificateDao.read(id).orElseThrow(()-> new NoSuchObjectException(NO_SUCH_OBJECT));
         Set<Tag> tags = tagDao.readByCertificateId(id);
         return mapToDto(certificate, tags);
     }
@@ -81,21 +77,26 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public void delete(Integer id) {
         validateDelete(id);
-        certificateDao.delete(id);
+        throwIfNoEffect(certificateDao.delete(id));
     }
 
     @Override
-    public List<CertificateDto> get(SearchOptions searchOptions) throws NoSuchObjectException {
+    public List<CertificateDto> get(SearchOptions searchOptions){
         validateRead(searchOptions);
         List<Certificate> certificateList = certificateDao.read(searchOptions.getSubname(), searchOptions.getSubdescription(), "");
-        throwIfEmpty(certificateList);
         sort(certificateList, getSortingDirectionByAlias(searchOptions.getSorting()));
         List<Set<Tag>> certificateTagList = getCertificatesTags(certificateList);
         return bunchMapToDto(certificateList, certificateTagList);
     }
 
+    private static void sort(List<Certificate> list, SortingDirection direction) {
+        Sorter.sort(list, direction, Comparator.comparing(Certificate::getName));
+    }
+
     private List<Set<Tag>> getCertificatesTags(List<Certificate> certificateList) {
-        return certificateList.stream().map(certificate -> tagDao.readByCertificateId(certificate.getId())).collect(Collectors.toList());
+        return certificateList.stream()
+                .map(certificate -> tagDao.readByCertificateId(certificate.getId()))
+                .collect(Collectors.toList());
     }
 
     private List<CertificateDto> bunchMapToDto(@NonNull List<Certificate> certificateList, @NonNull List<Set<Tag>> certificateTagList) {
@@ -109,61 +110,35 @@ public class CertificateServiceImpl implements CertificateService {
         return dtoList;
     }
 
-    private Set<Integer> getTagsIdsInternal(@NonNull CertificateDto certificateDto) throws ObjectCanNotBeCreatedException {
+    private Set<Integer> getTagsIdsInternal(@NonNull CertificateDto certificateDto) {
         Set<Integer> tagIds = new LinkedHashSet<>();
         for (String name : certificateDto.getTags()) {
             List<Tag> suchNamedTags = tagDao.read(name);
-            if (suchNamedTags.isEmpty()) {
-                try {
-                    tagIds.add(tagDao.create(Tag.builder().name(name).build()).getId());
-                } catch (DaoException e) {
-                    throw new ObjectCanNotBeCreatedException(e);
-                }
-            } else {
-                tagIds.add(suchNamedTags.get(0).getId());
-            }
+            Tag tag = suchNamedTags.stream().findAny().orElseGet(()->tagDao.create(Tag.builder().name(name).build()));
+            tagIds.add(tag.getId());
         }
         return tagIds;
     }
 
     private boolean certificateDtoHasTagList(@NonNull CertificateDto certificateDto) {
-        return nonNull(certificateDto.getTags());
+        List<String> tags = certificateDto.getTags();
+        return nonNull(tags) && !tags.isEmpty();
     }
 
-    private Set<Integer> getTagsIds(@NonNull CertificateDto certificateDto) throws ObjectCanNotBeCreatedException {
-        Set<Integer> tagIds = new LinkedHashSet<>();
-        if (certificateDtoHasTagList(certificateDto)) {
-            tagIds = getTagsIdsInternal(certificateDto);
-        }
-        return tagIds;
+    private Set<Integer> getTagsIds(@NonNull CertificateDto certificateDto) {
+        return certificateDtoHasTagList(certificateDto)? getTagsIdsInternal(certificateDto) : new HashSet<>();
     }
 
-    private Set<Tag> addTags(@NonNull List<String> tagNames) throws ObjectCanNotBeCreatedException {
-        Set<Tag> tagSet = new LinkedHashSet<>();
-        for (String name : tagNames) {
-            Tag tag = spotOrAddTag(name);
-            tagSet.add(tag);
-        }
-        return tagSet;
+    private Set<Tag> addTags(@NonNull List<String> tagNames) {
+        return tagNames.stream().map(this::spotOrAddTag).collect(Collectors.toSet());
     }
 
-    private Tag spotOrAddTag(@NonNull String name) throws ObjectCanNotBeCreatedException {
-        Tag tag;
-        List<Tag> tags = tagDao.read(name);
-        if (!tags.isEmpty()) {
-            tag = tags.get(0);
-        } else {
-            try {
-                tag = tagDao.create(new Tag(name));
-            } catch (DaoException e) {
-                throw new ObjectCanNotBeCreatedException(e);
-            }
-        }
-        return tag;
+    private Tag spotOrAddTag(@NonNull String name) {
+        return tagDao.read(name).stream().findAny().orElseGet(()->tagDao.create(new Tag(name)));
     }
 
-    private void throwIfEmpty(@NonNull Collection<?> collection) {
-        if (collection.isEmpty()) {
+    private void throwIfNoEffect(int modifiedLines) {
+        if(modifiedLines == 0){
             throw new NoSuchObjectException();
         }
     }

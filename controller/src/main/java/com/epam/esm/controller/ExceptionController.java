@@ -14,7 +14,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class ExceptionController {
     public static final String BASE_NAME = "error.";
-    public static final String VERSION = "01";
     private final MessageSource messageSource;
 
     @Autowired
@@ -27,17 +26,17 @@ public class ExceptionController {
         Map<String, String> errorResponse = new HashMap<>();
         String message = messageSource.getMessage(BASE_NAME + e.getStatus().name().toLowerCase(), null, locale);
         errorResponse.put("errorMessage", message);
-        errorResponse.put("errorCode", e.getStatus() + VERSION);
+        errorResponse.put("errorCode", Integer.toString(e.getStatus().value()));
         return errorResponse;
     }
 
     @ExceptionHandler(Exception.class)
-    public Map<String, String> handleException(Exception ex, Locale locale) {
+    public Map<String, String> handleException(Locale locale) {
         Map<String, String> errorResponse = new HashMap<>();
         String message = messageSource.getMessage("error.unexpected", null, locale);
 
         errorResponse.put("errorMessage", message);
-        errorResponse.put("errorCode", HttpStatus.INTERNAL_SERVER_ERROR.value() + VERSION);
+        errorResponse.put("errorCode", Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         return errorResponse;
     }
 }
