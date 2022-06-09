@@ -5,33 +5,28 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 @Configuration
 @ComponentScan("com.epam.esm.dao")
-@Profile("test")
-public class TestDaoConfig {
+@Profile("prod")
+public class ProdDaoConfig {
 
     @PostConstruct
-    public void init() throws Exception {
-        ResourceLoader resourceLoader = new AnnotationConfigApplicationContext(TestDaoConfig.class);
+    public void init() throws SQLException {
+        ResourceLoader resourceLoader = new AnnotationConfigApplicationContext(DevDaoConfig.class);
         HikariConfig hikariConfig = new HikariConfig("/db_scriptrunner.properties");
         try (HikariDataSource dataSource = new HikariDataSource(hikariConfig);
              ScriptRunner scriptRunner = new ScriptRunner(dataSource, resourceLoader)) {
-            scriptRunner.run("/sql/create_database.sql");
+            scriptRunner.run("/prod/scripts/create_database.sql");
         }
     }
 
     @Bean
     public DataSource dataSource() {
-        return new HikariDataSource(new HikariConfig("/dev/db.properties"));
-    }
-
-    @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(dataSource());
+        return new HikariDataSource(new HikariConfig("/prod/db.properties"));
     }
 }
