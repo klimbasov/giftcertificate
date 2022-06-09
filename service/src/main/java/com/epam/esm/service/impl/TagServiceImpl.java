@@ -2,13 +2,10 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.service.TagService;
-import com.epam.esm.service.constant.ExceptionMessages;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
-import com.epam.esm.service.exception.ext.ObjectCanNotBeCreatedException;
 import com.epam.esm.service.util.mapper.TagDtoEntityMapper;
 import com.epam.esm.service.util.sorting.Sorter;
 import com.epam.esm.service.util.sorting.SortingDirection;
@@ -20,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.service.constant.ExceptionMessages.*;
+import static com.epam.esm.service.constant.ExceptionMessages.NO_SUCH_OBJECT;
 import static com.epam.esm.service.util.mapper.TagDtoEntityMapper.mapToDto;
 import static com.epam.esm.service.util.sorting.SortingDirection.getSortingDirectionByAlias;
 import static com.epam.esm.service.util.validator.ArgumentValidator.SearchOptionsValidator.validateRead;
@@ -38,6 +35,10 @@ public class TagServiceImpl implements TagService {
         this.tagDao = tagDao;
     }
 
+    private static void sort(List<Tag> list, SortingDirection direction) {
+        Sorter.sort(list, direction, Comparator.comparing(Tag::getName));
+    }
+
     @Override
     public TagDto add(TagDto tagDto) {
         validateCreate(tagDto);
@@ -45,14 +46,14 @@ public class TagServiceImpl implements TagService {
         Optional<Tag> optionalSpottedTag = tagDao.read(tagName).stream()
                 .filter(tag1 -> tag1.getName().equals(tagName))
                 .findAny();
-        Tag tag = optionalSpottedTag.orElseGet(()-> tagDao.create(new Tag(tagName)));
+        Tag tag = optionalSpottedTag.orElseGet(() -> tagDao.create(new Tag(tagName)));
         return mapToDto(tag);
     }
 
     @Override
     public TagDto get(Integer id) {
         validateRead(id);
-        Tag tag = tagDao.read(id).orElseThrow(()-> new NoSuchObjectException(NO_SUCH_OBJECT));
+        Tag tag = tagDao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
         return mapToDto(tag);
     }
 
@@ -70,12 +71,8 @@ public class TagServiceImpl implements TagService {
         throwIfNoEffect(tagDao.delete(id));
     }
 
-    private static void sort(List<Tag> list, SortingDirection direction) {
-        Sorter.sort(list, direction, Comparator.comparing(Tag::getName));
-    }
-
     private void throwIfNoEffect(int modifiedLines) {
-        if(modifiedLines == 0){
+        if (modifiedLines == 0) {
             throw new NoSuchObjectException(NO_SUCH_OBJECT);
         }
     }

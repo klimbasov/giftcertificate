@@ -48,11 +48,7 @@ class TagDaoImplTest {
         Tag actual;
 
         int id = 0;
-        try {
-            id = tagDao.create(expected).getId();
-        } catch (DaoException e) {
-            e.printStackTrace();
-        }
+        id = tagDao.create(expected).getId();
         expected = expected.toBuilder().id(id).build();
         actual = getTagById(id);
 

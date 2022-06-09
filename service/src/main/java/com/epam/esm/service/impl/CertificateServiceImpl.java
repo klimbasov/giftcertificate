@@ -5,12 +5,10 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Certificate;
 import com.epam.esm.dao.entity.Entity;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
-import com.epam.esm.service.exception.ext.ObjectCanNotBeCreatedException;
 import com.epam.esm.service.util.sorting.Sorter;
 import com.epam.esm.service.util.sorting.SortingDirection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.service.constant.ExceptionMessages.NO_SUCH_OBJECT;
-import static com.epam.esm.service.constant.ExceptionMessages.OBJECT_CAN_NOT_BE_CREATED;
 import static com.epam.esm.service.util.mapper.CertificateDtoEntityMapper.mapToDto;
 import static com.epam.esm.service.util.mapper.CertificateDtoEntityMapper.mapToEntity;
 import static com.epam.esm.service.util.sorting.SortingDirection.getSortingDirectionByAlias;
@@ -42,6 +39,10 @@ public class CertificateServiceImpl implements CertificateService {
     public CertificateServiceImpl(CertificateDao certificateDao, TagDao tagDao) {
         this.certificateDao = certificateDao;
         this.tagDao = tagDao;
+    }
+
+    private static void sort(List<Certificate> list, SortingDirection direction) {
+        Sorter.sort(list, direction, Comparator.comparing(Certificate::getName));
     }
 
     @Override
@@ -69,7 +70,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public CertificateDto get(Integer id) {
         validateRead(id);
-        Certificate certificate = certificateDao.read(id).orElseThrow(()-> new NoSuchObjectException(NO_SUCH_OBJECT));
+        Certificate certificate = certificateDao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
         Set<Tag> tags = tagDao.readByCertificateId(id);
         return mapToDto(certificate, tags);
     }
@@ -81,16 +82,12 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public List<CertificateDto> get(SearchOptions searchOptions){
+    public List<CertificateDto> get(SearchOptions searchOptions) {
         validateRead(searchOptions);
         List<Certificate> certificateList = certificateDao.read(searchOptions.getSubname(), searchOptions.getSubdescription(), "");
         sort(certificateList, getSortingDirectionByAlias(searchOptions.getSorting()));
         List<Set<Tag>> certificateTagList = getCertificatesTags(certificateList);
         return bunchMapToDto(certificateList, certificateTagList);
-    }
-
-    private static void sort(List<Certificate> list, SortingDirection direction) {
-        Sorter.sort(list, direction, Comparator.comparing(Certificate::getName));
     }
 
     private List<Set<Tag>> getCertificatesTags(List<Certificate> certificateList) {
@@ -114,7 +111,7 @@ public class CertificateServiceImpl implements CertificateService {
         Set<Integer> tagIds = new LinkedHashSet<>();
         for (String name : certificateDto.getTags()) {
             List<Tag> suchNamedTags = tagDao.read(name);
-            Tag tag = suchNamedTags.stream().findAny().orElseGet(()->tagDao.create(Tag.builder().name(name).build()));
+            Tag tag = suchNamedTags.stream().findAny().orElseGet(() -> tagDao.create(Tag.builder().name(name).build()));
             tagIds.add(tag.getId());
         }
         return tagIds;
@@ -126,7 +123,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private Set<Integer> getTagsIds(@NonNull CertificateDto certificateDto) {
-        return certificateDtoHasTagList(certificateDto)? getTagsIdsInternal(certificateDto) : new HashSet<>();
+        return certificateDtoHasTagList(certificateDto) ? getTagsIdsInternal(certificateDto) : new HashSet<>();
     }
 
     private Set<Tag> addTags(@NonNull List<String> tagNames) {
@@ -134,11 +131,11 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private Tag spotOrAddTag(@NonNull String name) {
-        return tagDao.read(name).stream().findAny().orElseGet(()->tagDao.create(new Tag(name)));
+        return tagDao.read(name).stream().findAny().orElseGet(() -> tagDao.create(new Tag(name)));
     }
 
     private void throwIfNoEffect(int modifiedLines) {
-        if(modifiedLines == 0){
+        if (modifiedLines == 0) {
             throw new NoSuchObjectException();
         }
     }

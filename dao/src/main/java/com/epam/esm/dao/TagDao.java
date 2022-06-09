@@ -13,6 +13,7 @@ public interface TagDao {
 
     /**
      * Issue a tag create operation.
+     *
      * @param tag - tag entity to be added.
      * @return - tag entity. Tag id is provided.
      */
@@ -20,6 +21,7 @@ public interface TagDao {
 
     /**
      * Issue a certificate read-by-id operation.
+     *
      * @param id - id, associated with an object.
      * @return optional of tag entity, associated with id.
      */
@@ -27,6 +29,7 @@ public interface TagDao {
 
     /**
      * Issue a certificate read-bu-name operation.
+     *
      * @param name - partial name of the search tags.
      * @return list of tags entities, conforming to the options.
      */
@@ -34,6 +37,7 @@ public interface TagDao {
 
     /**
      * Issue a certificate read-by-certificateId operation.
+     *
      * @param certificateId - id, associated with the certificate, which tags required to be received.
      * @return list of tags entities, conforming to the options.
      */
@@ -41,6 +45,7 @@ public interface TagDao {
 
     /**
      * Issue a certificate delete operation.
+     *
      * @param id - id, associated with an object.
      * @return 0 if object mapped to provided id does not exist. Otherwise, return 1.
      */

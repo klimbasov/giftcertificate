@@ -24,10 +24,10 @@ public enum SortingDirection {
 
 class Aliases {
 
-    private Aliases(){}
-
     static final String INCR = "incr";
     static final String DECR = "decr";
+    private Aliases() {
+    }
 
     static boolean isDecrAlias(String alias) {
         return INCR.equals(alias);

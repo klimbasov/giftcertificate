@@ -13,6 +13,7 @@ import java.util.List;
 public interface CertificateService {
     /**
      * Issue a certificate create operation.
+     *
      * @param certificateDto - dto containing certificate to be added.
      * @return fully initialized dto. Creation and last update dates and certificate id are provided.
      * @throws ObjectCanNotBeCreatedException - if input dto state is invalid. For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
@@ -21,14 +22,16 @@ public interface CertificateService {
 
     /**
      * Issue a certificate update operation.
+     *
      * @param certificateDto - partially initialized dto, containing fields to be updated. Id field must be initialized.
-     * @throws NoSuchObjectException - if there is no object, associated with the provided id.
+     * @throws NoSuchObjectException          - if there is no object, associated with the provided id.
      * @throws ObjectCanNotBeCreatedException - if input dto state is invalid. For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
      */
     void put(CertificateDto certificateDto);
 
     /**
      * Issue a certificate read-by-id operation.
+     *
      * @param id - id value, associated with an object.
      * @return - fully initialized dto, associated with input id.
      * @throws NoSuchObjectException - if there is no object, associated with the provided id.
@@ -37,6 +40,7 @@ public interface CertificateService {
 
     /**
      * Issue a certificate read-by-option operation.
+     *
      * @param searchOptions - object, containing options, the search certificates must conform to.
      * @return - list of fully initialized dtos, conformed to provided options.
      */
@@ -44,6 +48,7 @@ public interface CertificateService {
 
     /**
      * Issue a certificate delete operation.
+     *
      * @param id - id value, associated with an object.
      * @throws NoSuchObjectException - if there is no object, associated with the provided id.
      */

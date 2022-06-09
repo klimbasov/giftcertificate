@@ -5,7 +5,8 @@ import com.epam.esm.service.dto.TagDto;
 
 public class TagDtoEntityMapper {
 
-    private TagDtoEntityMapper(){}
+    private TagDtoEntityMapper() {
+    }
 
     public static TagDto mapToDto(Tag tag) {
         return new TagDto(tag.getId(), tag.getName());

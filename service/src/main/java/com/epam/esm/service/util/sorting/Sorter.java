@@ -9,7 +9,8 @@ import static java.util.Objects.isNull;
 
 public class Sorter {
 
-    private Sorter(){}
+    private Sorter() {
+    }
 
     public static <T> void sort(List<T> list, SortingDirection direction, Comparator<T> comparator) {
         validate(list, direction);

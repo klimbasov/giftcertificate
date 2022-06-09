@@ -1,6 +1,9 @@
 package com.epam.esm.dao.constant;
 
 public final class TableNames {
+    private TableNames() {
+    }
+
     public static final class Certificate {
         public static final String TABLE_NAME = "gift_certificate";
         public static final String ID = "id";
@@ -11,7 +14,8 @@ public final class TableNames {
         public static final String CREATE_DATE = "create_date";
         public static final String LAST_UPDATE_DATE = "last_update_date";
 
-        private Certificate(){}
+        private Certificate() {
+        }
     }
 
     public static final class Tag {
@@ -19,7 +23,8 @@ public final class TableNames {
         public static final String ID = "id";
         public static final String NAME = "name";
 
-        private Tag(){}
+        private Tag() {
+        }
     }
 
     public static final class CertificateTag {
@@ -27,8 +32,7 @@ public final class TableNames {
         public static final String CERTIFICATE_ID = "gift_certificate_id";
         public static final String TAG_ID = "tag_id";
 
-        private CertificateTag(){}
+        private CertificateTag() {
+        }
     }
-
-    private TableNames(){}
 }

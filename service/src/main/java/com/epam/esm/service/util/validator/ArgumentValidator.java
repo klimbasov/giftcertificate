@@ -15,7 +15,8 @@ import static java.util.Objects.isNull;
 public class ArgumentValidator {
     private static final int MIN_ID = 1;
 
-    private ArgumentValidator(){}
+    private ArgumentValidator() {
+    }
 
     public static void validateRead(Integer id) {
         validateId(id);
@@ -52,7 +53,8 @@ public class ArgumentValidator {
         private static final float MIN_PRICE = 0.03f;
         private static final float MAX_PRICE = 10000f;
 
-        private CertificateDtoValidator(){}
+        private CertificateDtoValidator() {
+        }
 
         public static void validateCreate(CertificateDto certificateDto) {
             throwIfNull(certificateDto);
@@ -114,7 +116,8 @@ public class ArgumentValidator {
         private static final int MIN_NAME_LENGTH = 3;
         private static final int MAX_NAME_LENGTH = 25;
 
-        private TagDtoValidator(){}
+        private TagDtoValidator() {
+        }
 
         public static void validateCreate(TagDto tagDto) {
             throwIfNull(tagDto);
@@ -140,13 +143,13 @@ public class ArgumentValidator {
 
     public static class SearchOptionsValidator {
 
-        private SearchOptionsValidator(){}
+        private SearchOptionsValidator() {
+        }
 
         public static void validateRead(SearchOptions searchOptions) {
             throwIfNull(searchOptions);
             throwFieldInconsistencyRead(searchOptions);
         }
-
 
         private static void throwFieldInconsistencyRead(@NonNull SearchOptions searchOptions) {
             if (hasNullFieldRequiredRead(searchOptions)) {
@@ -161,12 +164,12 @@ public class ArgumentValidator {
         }
     }
 
-
 }
 
-class Messages{
-
-    private Messages(){}
+class Messages {
 
     static final String ILLEGAL_ARGUMENT = "some required params were null.";
+
+    private Messages() {
+    }
 }

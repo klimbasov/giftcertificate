@@ -9,12 +9,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.service.util.LocalDateTimeFormatter.toIso8601Str;
-
 import static java.util.Objects.nonNull;
 
 public class CertificateDtoEntityMapper {
 
-    private CertificateDtoEntityMapper(){}
+    private CertificateDtoEntityMapper() {
+    }
 
     public static Certificate mapToEntity(CertificateDto certificateDto) {
         Certificate.CertificateBuilder builder = getNewCertificateBuilder();

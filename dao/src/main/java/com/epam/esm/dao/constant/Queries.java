@@ -2,6 +2,9 @@ package com.epam.esm.dao.constant;
 
 public final class Queries {
 
+    private Queries() {
+    }
+
     public static final class Certificate {
 
         public static final String INSERT = "INSERT INTO " + TableNames.Certificate.TABLE_NAME
@@ -45,7 +48,8 @@ public final class Queries {
                 + TableNames.Certificate.DURATION + "=? "
                 + " WHERE " + TableNames.Certificate.ID + " = ?";
 
-        private Certificate(){}
+        private Certificate() {
+        }
     }
 
     public static final class Tag {
@@ -76,7 +80,8 @@ public final class Queries {
 
         public static final String DELETE = "DELETE FROM " + TableNames.Tag.TABLE_NAME + " WHERE " + TableNames.Tag.ID + " = ?";
 
-        private Tag(){}
+        private Tag() {
+        }
     }
 
     public static final class CertificateTag {
@@ -94,8 +99,7 @@ public final class Queries {
                 + " = ?;";
         public static final String DELETE = "DELETE FROM " + TableNames.CertificateTag.TABLE_NAME + " WHERE " + TableNames.CertificateTag.CERTIFICATE_ID + " = ?";
 
-        private CertificateTag(){}
+        private CertificateTag() {
+        }
     }
-
-    private Queries(){}
 }
