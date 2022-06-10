@@ -18,18 +18,14 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: JupiterVersion
 
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    implementation group: 'org.springframework', name: 'spring-jdbc', version: SpringVersion
     implementation group: 'org.springframework', name: 'spring-core', version: SpringVersion
     implementation group: 'org.springframework', name: 'spring-beans', version: SpringVersion
     implementation group: 'org.springframework', name: 'spring-context', version: SpringVersion
-    implementation group: 'org.springframework', name: 'spring-aspects', version: SpringVersion
-    implementation group: 'org.springframework', name: 'spring-expression', version: SpringVersion
     testImplementation group: 'org.springframework', name: 'spring-test', version: SpringVersion
     implementation group: 'org.springframework', name: 'spring-web', version: SpringVersion
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
     // https://mvnrepository.com/artifact/com.opencsv/opencsv
-    implementation group: 'com.opencsv', name: 'opencsv', version: '5.6'
 
     implementation project(":dao")
 }
