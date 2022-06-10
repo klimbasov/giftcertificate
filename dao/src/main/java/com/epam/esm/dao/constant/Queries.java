@@ -7,14 +7,6 @@ public final class Queries {
 
     public static final class Certificate {
 
-        public static final String INSERT = "INSERT INTO " + TableNames.Certificate.TABLE_NAME
-                + " (" + TableNames.Certificate.NAME + ", "
-                + TableNames.Certificate.DESCRIPTION + ", "
-                + TableNames.Certificate.PRICE + ", "
-                + TableNames.Certificate.CREATE_DATE + ", "
-                + TableNames.Certificate.LAST_UPDATE_DATE + ", "
-                + TableNames.Certificate.DURATION + ") "
-                + " VALUES (?, ?, ?, ?, ?, ?);";
         public static final String SELECT = "SELECT * FROM "
                 + TableNames.Certificate.TABLE_NAME + " as c"
                 + " left join " + TableNames.CertificateTag.TABLE_NAME + " as ct"
@@ -54,9 +46,6 @@ public final class Queries {
 
     public static final class Tag {
 
-        public static final String INSERT = "INSERT INTO " + TableNames.Tag.TABLE_NAME
-                + " (" + TableNames.Tag.NAME + ") "
-                + " VALUES (?);";
         public static final String SELECT = "SELECT * FROM "
                 + TableNames.Tag.TABLE_NAME
                 + " WHERE "
@@ -89,14 +78,6 @@ public final class Queries {
         public static final String INSERT = "INSERT INTO " + TableNames.CertificateTag.TABLE_NAME
                 + " (" + TableNames.CertificateTag.CERTIFICATE_ID + ", " + TableNames.CertificateTag.TAG_ID + ") "
                 + " VALUES (?,?);";
-        public static final String SELECT_BY_CERTIFICATE_ID = "SELECT * FROM "
-                + TableNames.CertificateTag.TABLE_NAME
-                + "JOIN " + TableNames.Tag.TABLE_NAME
-                + "ON " + TableNames.CertificateTag.TABLE_NAME + TableNames.CertificateTag.TAG_ID
-                + " = " + TableNames.Tag.TABLE_NAME + "." + TableNames.Tag.ID
-                + " WHERE "
-                + TableNames.CertificateTag.CERTIFICATE_ID
-                + " = ?;";
         public static final String DELETE = "DELETE FROM " + TableNames.CertificateTag.TABLE_NAME + " WHERE " + TableNames.CertificateTag.CERTIFICATE_ID + " = ?";
 
         private CertificateTag() {

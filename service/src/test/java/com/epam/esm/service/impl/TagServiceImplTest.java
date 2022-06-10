@@ -2,7 +2,6 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.config.TestServiceConfig;
 import com.epam.esm.service.dto.TagDto;
@@ -37,7 +36,7 @@ class TagServiceImplTest {
     TagDto sample;
 
     @BeforeAll
-    public void setup() throws DaoException {
+    public void setup() {
         Tag tag1 = Tag.builder().id(1).name("name1").build();
         Tag tag3 = Tag.builder().id(3).name("name3").build();
         Tag tag4 = Tag.builder().id(4).name("name4").build();
@@ -48,7 +47,7 @@ class TagServiceImplTest {
         Mockito.when(tagDao.read(tag1.getName())).thenReturn(Arrays.asList(tag1));
         Mockito.when(tagDao.read(1)).thenReturn(Optional.of(tag1));
         Mockito.when(tagDao.read("name")).thenReturn(Arrays.asList(tag1, tag3, tag4));
-        Mockito.when(tagDao.create(Mockito.any(Tag.class))).thenReturn(createdTag);
+        Mockito.when(tagDao.create(Mockito.any(Tag.class))).thenReturn(Optional.of(createdTag));
         Mockito.when(tagDao.readByCertificateId(1)).thenReturn(new HashSet<>(Arrays.asList(tag1, tag4)));
         tagService = new TagServiceImpl(tagDao);
     }

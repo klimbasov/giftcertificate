@@ -42,7 +42,7 @@ class CertificateDaoImplTest {
         Certificate expected = CertificateGenerator.generate();
         Certificate actual;
 
-        int id = certificateDao.create(expected, new HashSet<>()).getId();
+        int id = certificateDao.create(expected, new HashSet<>()).get().getId();
         expected = expected.toBuilder().id(id).build();
         actual = template.queryForObject(Queries.Certificate.SELECT_BY_ID, new CertificateRowMapper(), id);
 
@@ -65,7 +65,7 @@ class CertificateDaoImplTest {
     @Test
     void testReadByNameAndDescriptionAndTag() {
         List<Certificate> certificateList = new LinkedList<>();
-        Certificate.CertificateBuilder builder = CertificateGenerator.generate().toBuilder();
+        Certificate.CertificateBuilder<?, ?> builder = CertificateGenerator.generate().toBuilder();
         certificateList.add(builder.name("cert1").build());
         certificateList.add(builder.name("cert2").build());
 

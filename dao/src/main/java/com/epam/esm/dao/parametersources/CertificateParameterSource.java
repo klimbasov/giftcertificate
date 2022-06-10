@@ -10,7 +10,8 @@ import java.util.Map;
 import static java.util.Objects.nonNull;
 
 public class CertificateParameterSource implements SqlParameterSource {
-    Map<String, Object> parameters;
+
+    private final Map<String, Object> parameters;
 
     public CertificateParameterSource(Certificate certificate) {
         parameters = new HashMap<>();

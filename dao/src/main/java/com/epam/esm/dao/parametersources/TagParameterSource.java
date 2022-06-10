@@ -10,7 +10,7 @@ import java.util.Map;
 import static java.util.Objects.nonNull;
 
 public class TagParameterSource implements SqlParameterSource {
-    Map<String, Object> parameters;
+    private final Map<String, Object> parameters;
 
     public TagParameterSource(Tag tag) {
         parameters = new HashMap<>();

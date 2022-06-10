@@ -16,9 +16,10 @@ public interface CertificateDao {
      *
      * @param certificate - object, representing certificate entity.
      * @param tagIds      - tags ids, that have to be associated with the certificate.
-     * @return certificate entity. Certificate id is provided.
+     * @return optional of certificate entity. Certificate id is provided. Optional is empty, if certificate entity
+     * was not added.
      */
-    Certificate create(Certificate certificate, Set<Integer> tagIds);
+    Optional<Certificate> create(Certificate certificate, Set<Integer> tagIds);
 
     /**
      * Issue a certificate read-by-id operation.

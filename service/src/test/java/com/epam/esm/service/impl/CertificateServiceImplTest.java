@@ -4,7 +4,6 @@ import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Certificate;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.config.TestServiceConfig;
 import com.epam.esm.service.dto.CertificateDto;
@@ -44,7 +43,7 @@ class CertificateServiceImplTest {
     CertificateDto sample;
 
     @BeforeEach
-    void setUp() throws DaoException {
+    void setUp() {
         configureTagDaoMock();
         configureCertificateDaoMock();
         sample = CertificateDto.builder().name("cert5").duration(10).description("cert5 descr")
@@ -89,11 +88,13 @@ class CertificateServiceImplTest {
         Mockito.when(certificateDao.create(notNull(Certificate.class), notNull(Set.class))).thenAnswer(invocation -> {
             Certificate certificate = invocation.getArgumentAt(0, Certificate.class);
             Object[] tagSet = invocation.getArgumentAt(1, Set.class).toArray();
+            Optional<Certificate> optional;
             if (tagSet.length > 0 && !(tagSet[0] instanceof Integer || Objects.isNull(certificate))) {
-                throw new DaoException();
+                optional = Optional.empty();
             } else {
-                return createdCertificate;
+                optional = Optional.of(createdCertificate);
             }
+            return optional;
         });
         Mockito.when(certificateDao.read(any(String.class), any(String.class), any(String.class))).thenAnswer(invocation -> {
             String[] options = new String[]{invocation.getArgumentAt(0, String.class),
@@ -138,14 +139,15 @@ class CertificateServiceImplTest {
         Mockito.when(tagDao.read(tag1.getName())).thenReturn(Arrays.asList(tag1));
         Mockito.when(tagDao.read(1)).thenReturn(Optional.of(tag1));
         Mockito.when(tagDao.read("name")).thenReturn(Arrays.asList(tag1, tag3, tag4));
-        Mockito.when(tagDao.create(any(Tag.class))).thenReturn(createdTag);
+        Mockito.when(tagDao.create(any(Tag.class))).thenReturn(Optional.of(createdTag));
         Mockito.when(tagDao.readByCertificateId(1)).thenReturn(new HashSet<>(Arrays.asList(tag1, tag4)));
     }
 
     @Nested
     @DisplayName("Tests for method add")
     class AddTest {
-        CertificateDto inconsistentDto = CertificateDto.builder().build();
+
+        private final CertificateDto inconsistentDto = CertificateDto.builder().build();
 
         @Test
         @DisplayName("Normal behavior with consistent input")

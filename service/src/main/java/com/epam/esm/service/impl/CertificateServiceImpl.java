@@ -3,12 +3,12 @@ package com.epam.esm.service.impl;
 import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Certificate;
-import com.epam.esm.dao.entity.Entity;
 import com.epam.esm.dao.entity.Tag;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
+import com.epam.esm.service.exception.ext.ObjectAlreadyExist;
 import com.epam.esm.service.util.sorting.Sorter;
 import com.epam.esm.service.util.sorting.SortingDirection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.service.constant.ExceptionMessages.NO_SUCH_OBJECT;
+import static com.epam.esm.service.constant.ExceptionMessages.OBJECT_ALREADY_EXISTS;
 import static com.epam.esm.service.util.mapper.CertificateDtoEntityMapper.mapToDto;
 import static com.epam.esm.service.util.mapper.CertificateDtoEntityMapper.mapToEntity;
 import static com.epam.esm.service.util.sorting.SortingDirection.getSortingDirectionByAlias;
@@ -49,12 +50,10 @@ public class CertificateServiceImpl implements CertificateService {
     public CertificateDto add(CertificateDto certificateDto) {
         validateCreate(certificateDto);
         Certificate certificate = mapToEntity(certificateDto);
-        Set<Tag> tagSet = addTags(certificateDto.getTags());
-        Set<Integer> tagIdSet = tagSet.stream()
-                .map(Entity::getId)
-                .collect(Collectors.toSet());
-        int id = certificateDao.create(certificate, tagIdSet).getId();
-        return mapToDto(certificate.toBuilder().id(id).build(), tagSet);
+        Set<Integer> tagIdSet = getTagsIds(certificateDto);
+        Certificate createdCertificate = certificateDao.create(certificate, tagIdSet)
+                .orElseThrow(()-> new ObjectAlreadyExist(OBJECT_ALREADY_EXISTS));
+        return mapToDto(createdCertificate, certificateDto.getTags());
     }
 
     @Override
@@ -107,31 +106,19 @@ public class CertificateServiceImpl implements CertificateService {
         return dtoList;
     }
 
-    private Set<Integer> getTagsIdsInternal(@NonNull CertificateDto certificateDto) {
-        Set<Integer> tagIds = new LinkedHashSet<>();
-        for (String name : certificateDto.getTags()) {
-            List<Tag> suchNamedTags = tagDao.read(name);
-            Tag tag = suchNamedTags.stream().findAny().orElseGet(() -> tagDao.create(Tag.builder().name(name).build()));
-            tagIds.add(tag.getId());
-        }
-        return tagIds;
-    }
-
-    private boolean certificateDtoHasTagList(@NonNull CertificateDto certificateDto) {
-        List<String> tags = certificateDto.getTags();
-        return nonNull(tags) && !tags.isEmpty();
-    }
-
     private Set<Integer> getTagsIds(@NonNull CertificateDto certificateDto) {
-        return certificateDtoHasTagList(certificateDto) ? getTagsIdsInternal(certificateDto) : new HashSet<>();
+        return nonNull(certificateDto.getTags()) ? getTagsIdsInternal(certificateDto) : new HashSet<>();
     }
 
-    private Set<Tag> addTags(@NonNull List<String> tagNames) {
-        return tagNames.stream().map(this::spotOrAddTag).collect(Collectors.toSet());
+    private Set<Integer> getTagsIdsInternal(@NonNull CertificateDto certificateDto) {
+        return certificateDto.getTags().stream().map(name ->spotOrAddTag(name).getId()).collect(Collectors.toSet());
     }
 
     private Tag spotOrAddTag(@NonNull String name) {
-        return tagDao.read(name).stream().findAny().orElseGet(() -> tagDao.create(new Tag(name)));
+        return tagDao.read(name).stream()
+                .findAny()
+                .orElseGet(() -> tagDao.create(new Tag(name))
+                .orElseThrow(()-> new ObjectAlreadyExist(OBJECT_ALREADY_EXISTS)));
     }
 
     private void throwIfNoEffect(int modifiedLines) {

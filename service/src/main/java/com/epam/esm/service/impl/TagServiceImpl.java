@@ -6,6 +6,7 @@ import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
+import com.epam.esm.service.exception.ext.ObjectAlreadyExist;
 import com.epam.esm.service.util.mapper.TagDtoEntityMapper;
 import com.epam.esm.service.util.sorting.Sorter;
 import com.epam.esm.service.util.sorting.SortingDirection;
@@ -14,10 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.service.constant.ExceptionMessages.NO_SUCH_OBJECT;
+import static com.epam.esm.service.constant.ExceptionMessages.OBJECT_ALREADY_EXISTS;
 import static com.epam.esm.service.util.mapper.TagDtoEntityMapper.mapToDto;
 import static com.epam.esm.service.util.sorting.SortingDirection.getSortingDirectionByAlias;
 import static com.epam.esm.service.util.validator.ArgumentValidator.SearchOptionsValidator.validateRead;
@@ -43,10 +44,8 @@ public class TagServiceImpl implements TagService {
     public TagDto add(TagDto tagDto) {
         validateCreate(tagDto);
         String tagName = tagDto.getName();
-        Optional<Tag> optionalSpottedTag = tagDao.read(tagName).stream()
-                .filter(tag1 -> tag1.getName().equals(tagName))
-                .findAny();
-        Tag tag = optionalSpottedTag.orElseGet(() -> tagDao.create(new Tag(tagName)));
+        Tag tag = tagDao.create(new Tag(tagName))
+                .orElseThrow(()-> new ObjectAlreadyExist(OBJECT_ALREADY_EXISTS));
         return mapToDto(tag);
     }
 

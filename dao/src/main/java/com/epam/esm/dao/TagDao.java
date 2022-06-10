@@ -17,7 +17,7 @@ public interface TagDao {
      * @param tag - tag entity to be added.
      * @return - tag entity. Tag id is provided.
      */
-    Tag create(Tag tag);
+    Optional<Tag> create(Tag tag);
 
     /**
      * Issue a certificate read-by-id operation.
