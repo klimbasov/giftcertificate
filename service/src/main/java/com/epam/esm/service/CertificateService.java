@@ -2,6 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
+import com.epam.esm.service.exception.ext.InvalidRequestException;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface CertificateService {
      *
      * @param certificateDto - dto containing certificate to be added.
      * @return fully initialized dto. Creation and last update dates and certificate id are provided.
-     * @throws com.epam.esm.service.exception.ext.IllegalArgumentException - if input dto state is invalid.
+     * @throws InvalidRequestException - if input dto state is invalid.
      * For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
      */
     CertificateDto add(CertificateDto certificateDto);
@@ -25,7 +26,7 @@ public interface CertificateService {
      *
      * @param certificateDto - partially initialized dto, containing fields to be updated. Id field must be initialized.
      * @throws NoSuchObjectException          - if there is no object, associated with the provided id.
-     * @throws com.epam.esm.service.exception.ext.IllegalArgumentException - if input dto state is invalid.
+     * @throws InvalidRequestException - if input dto state is invalid.
      * For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
      */
     void put(CertificateDto certificateDto);

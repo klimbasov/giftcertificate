@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.epam.esm.dao.util.formatter.AlikeStringSqlFormatter.wrap;
-import static java.util.Objects.nonNull;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 @Repository
 public class CertificateDaoImpl implements CertificateDao {
@@ -100,7 +100,7 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     private void addCertificateTags(int id, Set<Integer> tagIds) {
-        if (nonNull(tagIds) && !tagIds.isEmpty()) {
+        if (isNotEmpty(tagIds)) {
             template.batchUpdate(Queries.CertificateTag.INSERT, new CertificateTagButchInsertPreparedStatementSetter(id, tagIds));
         }
     }

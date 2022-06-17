@@ -3,22 +3,22 @@ package com.epam.esm.service.exception.ext;
 import com.epam.esm.service.exception.ServiceRuntimeException;
 import org.springframework.http.HttpStatus;
 
-public class IllegalArgumentException extends ServiceRuntimeException {
+public class InvalidRequestException extends ServiceRuntimeException {
     public static final HttpStatus STATUS = HttpStatus.BAD_REQUEST;
 
-    public IllegalArgumentException() {
+    public InvalidRequestException() {
         super(STATUS);
     }
 
-    public IllegalArgumentException(String message) {
+    public InvalidRequestException(String message) {
         super(message, STATUS);
     }
 
-    public IllegalArgumentException(Exception exception) {
+    public InvalidRequestException(Exception exception) {
         super(exception, STATUS);
     }
 
-    public IllegalArgumentException(String message, Exception exception) {
+    public InvalidRequestException(String message, Exception exception) {
         super(message, exception, STATUS);
     }
 

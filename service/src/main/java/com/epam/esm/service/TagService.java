@@ -2,6 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.exception.ext.InvalidRequestException;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface TagService {
      *
      * @param tagDto - dto containing tag to be added.
      * @return fully initialized dto. Tag id is provided.
-     * @throws com.epam.esm.service.exception.ext.IllegalArgumentException - if input dto state is invalid.
+     * @throws InvalidRequestException - if input dto state is invalid.
      * For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
      */
     TagDto add(TagDto tagDto);

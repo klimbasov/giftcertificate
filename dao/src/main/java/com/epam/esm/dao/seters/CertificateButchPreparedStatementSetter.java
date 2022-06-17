@@ -9,16 +9,13 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class CertificateButchPreparedStatementSetter implements BatchPreparedStatementSetter {
     List<Certificate> certificateList;
 
     public CertificateButchPreparedStatementSetter(final List<Certificate> certificateList) {
-        this.certificateList = certificateList;
-        if (isNull(this.certificateList)) {
-            this.certificateList = new ArrayList<>();
-        }
+        this.certificateList = nonNull(certificateList) ? certificateList : new ArrayList<>();
     }
 
     @Override

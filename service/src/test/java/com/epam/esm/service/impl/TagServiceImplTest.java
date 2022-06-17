@@ -5,7 +5,7 @@ import com.epam.esm.dao.entity.Tag;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.config.TestServiceConfig;
 import com.epam.esm.service.dto.TagDto;
-import com.epam.esm.service.exception.ext.IllegalArgumentException;
+import com.epam.esm.service.exception.ext.InvalidRequestException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -64,15 +64,15 @@ class TagServiceImplTest {
 
     @Test
     void addNull() {
-        assertThrows(IllegalArgumentException.class, () -> tagService.add(null));
+        assertThrows(InvalidRequestException.class, () -> tagService.add(null));
     }
 
     @Test
     void addInvalidName() {
         TagDto dtoSmallName = new TagDto(1, "");
         TagDto dtoLargeName = new TagDto(1, "qwerqwerqwerqwerqwerqwerqwerqwerqwerqwerqwerqwerqwe");
-        assertThrows(IllegalArgumentException.class, () -> tagService.add(dtoSmallName));
-        assertThrows(IllegalArgumentException.class, () -> tagService.add(dtoLargeName));
+        assertThrows(InvalidRequestException.class, () -> tagService.add(dtoSmallName));
+        assertThrows(InvalidRequestException.class, () -> tagService.add(dtoLargeName));
     }
 
     @Test

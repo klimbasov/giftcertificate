@@ -3,7 +3,7 @@ package com.epam.esm.service.util.validator;
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.dto.TagDto;
-import com.epam.esm.service.exception.ext.IllegalArgumentException;
+import com.epam.esm.service.exception.ext.InvalidRequestException;
 import org.springframework.lang.NonNull;
 
 import java.util.Arrays;
@@ -33,13 +33,13 @@ public class ArgumentValidator {
 
     private static void throwInconsistentId(int id) {
         if (id <= 0) {
-            throw new IllegalArgumentException();
+            throw new InvalidRequestException();
         }
     }
 
     private static void throwIfNull(Object o) {
         if (isNull(o)) {
-            throw new IllegalArgumentException("null passed to the parameters");
+            throw new InvalidRequestException("null passed to the parameters");
         }
     }
 
@@ -68,14 +68,14 @@ public class ArgumentValidator {
 
         private static void throwFieldInconsistencyCreate(CertificateDto certificateDto) {
             if (hasFieldInconsistencyCreate(certificateDto)) {
-                throw new IllegalArgumentException(ILLEGAL_ARGUMENT);
+                throw new InvalidRequestException(ILLEGAL_ARGUMENT);
             }
         }
 
         private static void throwFieldInconsistencyUpdate(@NonNull CertificateDto certificateDto) {
             if (hasNullFieldRequiredUpdate(certificateDto)
                     || hasFieldInconsistencyUpdate(certificateDto)) {
-                throw new IllegalArgumentException(ILLEGAL_ARGUMENT);
+                throw new InvalidRequestException(ILLEGAL_ARGUMENT);
             }
         }
 
@@ -96,7 +96,8 @@ public class ArgumentValidator {
                     certificateDto.getPrice(),
                     certificateDto.getDuration(),
                     certificateDto.getCreateDate(),
-                    certificateDto.getLastUpdateDate()}).allMatch(Objects::isNull);
+                    certificateDto.getLastUpdateDate(),
+                    certificateDto.getTags()}).allMatch(Objects::isNull);
         }
 
         private static boolean hasFieldInconsistencyCreate(@NonNull CertificateDto certificateDto) {
@@ -126,7 +127,7 @@ public class ArgumentValidator {
 
         private static void throwFieldInconsistencyCreate(TagDto tagDto) {
             if (hasFieldInconsistencyCreate(tagDto)) {
-                throw new IllegalArgumentException(ILLEGAL_ARGUMENT);
+                throw new InvalidRequestException(ILLEGAL_ARGUMENT);
             }
         }
 
@@ -153,7 +154,7 @@ public class ArgumentValidator {
 
         private static void throwFieldInconsistencyRead(@NonNull SearchOptions searchOptions) {
             if (hasNullFieldRequiredRead(searchOptions)) {
-                throw new IllegalArgumentException(ILLEGAL_ARGUMENT);
+                throw new InvalidRequestException(ILLEGAL_ARGUMENT);
             }
         }
 

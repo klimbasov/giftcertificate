@@ -8,7 +8,7 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.config.TestServiceConfig;
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
-import com.epam.esm.service.exception.ext.IllegalArgumentException;
+import com.epam.esm.service.exception.ext.InvalidRequestException;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -162,13 +162,13 @@ class CertificateServiceImplTest {
         @Test
         @DisplayName("Null parameter passing")
         void addNull() {
-            assertThrows(IllegalArgumentException.class, () -> certificateService.add(null));
+            assertThrows(InvalidRequestException.class, () -> certificateService.add(null));
         }
 
         @Test
         @DisplayName("Inconsistent parameter passing")
         void addInconsistent() {
-            assertThrows(IllegalArgumentException.class, () -> certificateService.add(inconsistentDto));
+            assertThrows(InvalidRequestException.class, () -> certificateService.add(inconsistentDto));
         }
 
     }
@@ -188,7 +188,7 @@ class CertificateServiceImplTest {
         @DisplayName("Null parameter passing")
         void putInconsistent() {
             CertificateDto inconsistentDto = sample;
-            assertThrows(IllegalArgumentException.class, () -> certificateService.put(inconsistentDto));
+            assertThrows(InvalidRequestException.class, () -> certificateService.put(inconsistentDto));
         }
 
         @Test
@@ -217,7 +217,7 @@ class CertificateServiceImplTest {
         @Test
         @DisplayName("Negative id value passing")
         void readInconsistent() {
-            assertThrows(IllegalArgumentException.class, () -> certificateService.get(inconsistentId));
+            assertThrows(InvalidRequestException.class, () -> certificateService.get(inconsistentId));
         }
 
         @Test
@@ -262,7 +262,7 @@ class CertificateServiceImplTest {
         @Test
         @DisplayName("Null passing")
         void readNull() {
-            assertThrows(IllegalArgumentException.class, () -> certificateService.get((SearchOptions) null));
+            assertThrows(InvalidRequestException.class, () -> certificateService.get((SearchOptions) null));
         }
 
         @Test
@@ -290,7 +290,7 @@ class CertificateServiceImplTest {
         @Test
         @DisplayName("Negative id value passing")
         void deleteInconsistent() {
-            assertThrows(IllegalArgumentException.class, () -> certificateService.delete(inconsistentId));
+            assertThrows(InvalidRequestException.class, () -> certificateService.delete(inconsistentId));
         }
 
         @Test
