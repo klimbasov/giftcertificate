@@ -1,107 +1,64 @@
 package com.epam.esm.dao.impl;
 
-import com.epam.esm.dao.CertificateDao;
-import com.epam.esm.dao.constant.Queries;
-import com.epam.esm.dao.constant.TableNames;
+import com.epam.esm.dao.CertificateDao;;
 import com.epam.esm.dao.entity.Certificate;
-import com.epam.esm.dao.mappers.CertificateRowMapper;
-import com.epam.esm.dao.parametersources.CertificateParameterSource;
-import com.epam.esm.dao.seters.CertificateTagButchInsertPreparedStatementSetter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.epam.esm.dao.util.formatter.AlikeStringSqlFormatter.wrap;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static java.util.Objects.nonNull;
 
 @Repository
 public class CertificateDaoImpl implements CertificateDao {
 
-    private final JdbcTemplate template;
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     @Autowired
-    public CertificateDaoImpl(DataSource dataSource) {
-        this.template = new JdbcTemplate(dataSource);
+    public CertificateDaoImpl(EntityManager entityManager){
+        this.entityManager = entityManager;
+    }
+    @Override
+    @Transactional
+    public Optional<Certificate> create(Certificate certificate, Set<Long> tagIds){
+        entityManager.persist(certificate);
+        return Optional.of(certificate);
     }
 
     @Override
-    public Optional<Certificate> create(Certificate certificate, Set<Integer> tagIds){
-        SimpleJdbcInsert certificateInsert = new SimpleJdbcInsert(template);
-        certificateInsert.withTableName(TableNames.Certificate.TABLE_NAME)
-                .usingGeneratedKeyColumns(TableNames.Certificate.ID)
-                .usingColumns(TableNames.Certificate.NAME,
-                        TableNames.Certificate.DESCRIPTION,
-                        TableNames.Certificate.PRICE,
-                        TableNames.Certificate.CREATE_DATE,
-                        TableNames.Certificate.LAST_UPDATE_DATE,
-                        TableNames.Certificate.DURATION);
-        Optional<Integer> optionalId = getExecuteAdnGetGeneratedId(certificate, certificateInsert);
-        return getOptionalResultEntity(certificate, tagIds, optionalId);
+    public Optional<Certificate> read(long id) {
+        return Optional.of(entityManager.find(Certificate.class, id));
     }
 
-    private Optional<Certificate> getOptionalResultEntity(Certificate certificate, Set<Integer> tagIds, Optional<Integer> optionalId) {
-        Optional<Certificate> optional = Optional.empty();
-        if(optionalId.isPresent()){
-            Integer id = optionalId.get();
-            addCertificateTags(id, tagIds);
-            optional = Optional.of(certificate.toBuilder().id(id).build());
+    @Override
+    public List<Certificate> read(String name, String desc, String tag, int offset, int limit) {
+        CriteriaQuery<Certificate> certificateCriteriaQuery = entityManager.getCriteriaBuilder().createQuery(Certificate.class);
+        Root<Certificate> root = certificateCriteriaQuery.from(Certificate.class);
+        return entityManager.createQuery(certificateCriteriaQuery).setFirstResult(offset).setMaxResults(limit).getResultList();
+    }
+
+    @Override
+    public int delete(long id) {
+        int retVal = 0;
+        Certificate certificate = entityManager.find(Certificate.class, id);
+        if(nonNull(certificate)){
+            entityManager.remove(certificate);
+            retVal = 1;
         }
-        return optional;
-    }
-
-    private Optional<Integer> getExecuteAdnGetGeneratedId(Certificate certificate, SimpleJdbcInsert certificateInsert) {
-        Optional<Integer> id;
-        try{
-            id = Optional.of(certificateInsert.executeAndReturnKey(new CertificateParameterSource(certificate)).intValue());
-        }catch (DuplicateKeyException ignored){
-            id = Optional.empty();
-        }
-        return id;
+        return retVal;
     }
 
     @Override
-    public Optional<Certificate> read(int id) {
-        Optional<Certificate> optionalEntity;
-        optionalEntity = template.query(Queries.Certificate.SELECT_BY_ID, new CertificateRowMapper(), id).stream().findAny();
-        return optionalEntity;
-    }
-
-    @Override
-    public List<Certificate> read(String name, String desc, String tag) {
-        return template.query(Queries.Certificate.SELECT, new CertificateRowMapper(), wrap(name), wrap(desc), wrap(tag));
-    }
-
-    @Override
-    public int delete(int id) {
-        return template.update(Queries.Certificate.DELETE, id);
-    }
-
-    @Override
-    public void update(Certificate certificate, Set<Integer> tagIds) {
-        template.update(Queries.Certificate.UPDATE,
-                certificate.getName(),
-                certificate.getDescription(),
-                certificate.getPrice(),
-                certificate.getCreateDate(),
-                certificate.getLastUpdateDate(),
-                certificate.getDuration(),
-                certificate.getId());
-
-        template.update(Queries.CertificateTag.DELETE, certificate.getId());
-
-        addCertificateTags(certificate.getId(), tagIds);
-    }
-
-    private void addCertificateTags(int id, Set<Integer> tagIds) {
-        if (isNotEmpty(tagIds)) {
-            template.batchUpdate(Queries.CertificateTag.INSERT, new CertificateTagButchInsertPreparedStatementSetter(id, tagIds));
-        }
+    public void update(Certificate certificate, Set<Long> tagIds) {
     }
 }

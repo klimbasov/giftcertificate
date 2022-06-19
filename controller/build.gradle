@@ -17,11 +17,14 @@ dependencies {
     implementation group: 'org.springframework', name: 'spring-webmvc', version: SpringVersion
     implementation group: 'org.springframework', name: 'spring-context', version: SpringVersion
     implementation group: 'org.springframework', name: 'spring-beans', version: SpringVersion
-    compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: javaxVersion
+    // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
+    compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+
+
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.3'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.7.0'
-
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-hateoas', version: '2.7.0'
     implementation project(":service")
 }
 

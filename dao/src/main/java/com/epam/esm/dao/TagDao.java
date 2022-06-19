@@ -25,7 +25,7 @@ public interface TagDao {
      * @param id - id, associated with an object.
      * @return optional of tag entity, associated with id.
      */
-    Optional<Tag> read(int id);
+    Optional<Tag> read(long id);
 
     /**
      * Issue a certificate read-bu-name operation.
@@ -41,7 +41,7 @@ public interface TagDao {
      * @param certificateId - id, associated with the certificate, which tags required to be received.
      * @return list of tags entities, conforming to the options.
      */
-    Set<Tag> readByCertificateId(Integer certificateId);
+    Set<Tag> readByCertificateId(long certificateId);
 
     /**
      * Issue a certificate delete operation.
@@ -49,5 +49,5 @@ public interface TagDao {
      * @param id - id, associated with an object.
      * @return 0 if object mapped to provided id does not exist. Otherwise, return 1.
      */
-    int delete(int id);
+    int delete(long id);
 }

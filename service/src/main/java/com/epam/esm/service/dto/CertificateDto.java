@@ -1,6 +1,7 @@
 package com.epam.esm.service.dto;
 
 import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 
@@ -8,17 +9,17 @@ import java.util.List;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CertificateDto {
+public class CertificateDto extends RepresentationModel<CertificateDto> {
     @Builder.Default
-    Integer id = null;
+    long id = 0;
     @Builder.Default
     String name = null;
     @Builder.Default
     String description = null;
     @Builder.Default
-    Float price = null;
+    double price = 0;
     @Builder.Default
-    Integer duration = null;
+    int duration = 0;
     @Builder.Default
     String createDate = null;
     @Builder.Default

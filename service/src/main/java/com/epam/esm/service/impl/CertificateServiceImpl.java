@@ -12,6 +12,7 @@ import com.epam.esm.service.exception.ext.ObjectAlreadyExist;
 import com.epam.esm.service.util.sorting.Sorter;
 import com.epam.esm.service.util.sorting.SortingDirection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +51,7 @@ public class CertificateServiceImpl implements CertificateService {
     public CertificateDto add(CertificateDto certificateDto) {
         validateCreate(certificateDto);
         Certificate certificate = mapToEntity(certificateDto);
-        Set<Integer> tagIdSet = getTagsIds(certificateDto);
+        Set<Long> tagIdSet = getTagsIds(certificateDto);
         Certificate createdCertificate = certificateDao.create(certificate, tagIdSet)
                 .orElseThrow(()-> new ObjectAlreadyExist(OBJECT_ALREADY_EXISTS));
         return mapToDto(createdCertificate, certificateDto.getTags());
@@ -61,7 +62,7 @@ public class CertificateServiceImpl implements CertificateService {
         validateUpdatePreMap(certificateDto);
         Certificate oldCertificate = certificateDao.read(certificateDto.getId())
                 .orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
-        Set<Integer> tagIds = getTagsIds(certificateDto);
+        Set<Long> tagIds = getTagsIds(certificateDto);
         Certificate certificate = mapToEntity(certificateDto, oldCertificate);
         certificateDao.update(certificate, tagIds);
     }
@@ -81,12 +82,17 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public List<CertificateDto> get(SearchOptions searchOptions) {
+    public PagedModel<CertificateDto> get(SearchOptions searchOptions) {
         validateRead(searchOptions);
-        List<Certificate> certificateList = certificateDao.read(searchOptions.getSubname(), searchOptions.getSubdescription(), "");
+        List<Certificate> certificateList = certificateDao.read(searchOptions.getSubname(), searchOptions.getSubdescription(), "", 0,20);
         sort(certificateList, getSortingDirectionByAlias(searchOptions.getSorting()));
         List<Set<Tag>> certificateTagList = getCertificatesTags(certificateList);
-        return bunchMapToDto(certificateList, certificateTagList);
+        return PagedModel.of(bunchMapToDto(certificateList, certificateTagList), new PagedModel.PageMetadata(searchOptions.getPageNumber(), searchOptions.getPageSize(), 50));
+    }
+
+    @Override
+    public List<CertificateDto> getAll() {
+        return null;
     }
 
     private List<Set<Tag>> getCertificatesTags(List<Certificate> certificateList) {
@@ -106,11 +112,11 @@ public class CertificateServiceImpl implements CertificateService {
         return dtoList;
     }
 
-    private Set<Integer> getTagsIds(@NonNull CertificateDto certificateDto) {
+    private Set<Long> getTagsIds(@NonNull CertificateDto certificateDto) {
         return nonNull(certificateDto.getTags()) ? getTagsIdsInternal(certificateDto) : new HashSet<>();
     }
 
-    private Set<Integer> getTagsIdsInternal(@NonNull CertificateDto certificateDto) {
+    private Set<Long> getTagsIdsInternal(@NonNull CertificateDto certificateDto) {
         return certificateDto.getTags().stream().map(name ->spotOrAddTag(name).getId()).collect(Collectors.toSet());
     }
 

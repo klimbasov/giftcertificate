@@ -1,28 +1,45 @@
 package com.epam.esm.dao.entity;
 
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import lombok.ToString;
-import lombok.Value;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
+
+import javax.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
-@Value
-@SuperBuilder(toBuilder = true)
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class Certificate extends Entity {
-    @NonNull
-    String name;
-    @NonNull
-    String description;
-    @NonNull
-    Float price;
-    @NonNull
-    Integer duration;
-    @NonNull
-    LocalDateTime createDate;
-    @NonNull
-    LocalDateTime lastUpdateDate;
+@Data
+@Builder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@Entity
+@Table(name = "certificates")
+public class Certificate{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    long id = 0;
+
+    @Column(name = "name", nullable = false, unique = true)
+    String name = "";
+
+    @Column(name = "description", nullable = false, length = 1000)
+    String description = "";
+
+    @Column(name = "price", nullable = false)
+    double price = 0;
+
+    @Column(name = "duration", nullable = false)
+    int duration = 0;
+
+    @Column(name = "createDate", nullable = false)
+    LocalDateTime createDate = null;
+
+    @Column(name = "lastUpdateDate", nullable = false)
+    LocalDateTime lastUpdateDate = null;
+
+    @ManyToMany
+    @JoinTable(name = "certificate_tag",
+            joinColumns = @JoinColumn(name = "certificate_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    Set<Tag> tags = null;
 }

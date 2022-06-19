@@ -4,6 +4,7 @@ import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.exception.ext.InvalidRequestException;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
+import org.springframework.hateoas.PagedModel;
 
 import java.util.List;
 
@@ -46,7 +47,14 @@ public interface CertificateService {
      * @param searchOptions - object, containing options, the search certificates must conform to.
      * @return - list of fully initialized dtos, conformed to provided options.
      */
-    List<CertificateDto> get(SearchOptions searchOptions);
+    PagedModel<CertificateDto> get(SearchOptions searchOptions);
+
+    /**
+     * Issue a certificate read-all operation.
+     *
+     * @return - list of fully initialized dtos, conformed to provided options.
+     */
+    List<CertificateDto> getAll();
 
     /**
      * Issue a certificate delete operation.

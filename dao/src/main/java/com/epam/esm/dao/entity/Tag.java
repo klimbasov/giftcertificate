@@ -1,14 +1,20 @@
 package com.epam.esm.dao.entity;
 
+import javax.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
-@Value
-@SuperBuilder(toBuilder = true)
-@ToString
+@Entity
+@Table(name = "tags")
+@Data
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class Tag extends Entity {
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+public class Tag {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    long id = 0;
+
     @NonNull
     String name;
 }

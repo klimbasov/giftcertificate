@@ -12,9 +12,6 @@ import static com.epam.esm.dao.constant.TableNames.Tag.NAME;
 public class TagRowMapper implements RowMapper<Tag> {
     @Override
     public Tag mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return Tag.builder()
-                .name(rs.getString(NAME))
-                .id(rs.getInt(ID))
-                .build();
+        return new Tag(rs.getInt(ID), rs.getString(NAME));
     }
 }

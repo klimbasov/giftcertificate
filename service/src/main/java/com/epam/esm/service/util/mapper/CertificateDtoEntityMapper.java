@@ -18,17 +18,17 @@ public class CertificateDtoEntityMapper {
     }
 
     public static Certificate mapToEntity(CertificateDto certificateDto) {
-        Certificate.CertificateBuilder<?, ?> builder = getNewCertificateBuilder();
+        Certificate.CertificateBuilder builder = getNewCertificateBuilder();
         return buildCertificate(certificateDto, builder);
     }
 
     public static Certificate mapToEntity(CertificateDto certificateDto, Certificate certificate) {
-        Certificate.CertificateBuilder<?, ?> builder = getExistingCertificateBuilder(certificate);
+        Certificate.CertificateBuilder builder = getExistingCertificateBuilder(certificate);
         return buildCertificate(certificateDto, builder);
     }
 
-    private static Certificate.CertificateBuilder<?, ?> getExistingCertificateBuilder(Certificate certificate) {
-        Certificate.CertificateBuilder<?, ?> builder = certificate.toBuilder();
+    private static Certificate.CertificateBuilder getExistingCertificateBuilder(Certificate certificate) {
+        Certificate.CertificateBuilder builder = certificate.toBuilder();
         builder.createDate(certificate.getCreateDate());
         builder.lastUpdateDate(LocalDateTime.now());
         return builder;
@@ -60,26 +60,22 @@ public class CertificateDtoEntityMapper {
                 .build();
     }
 
-    private static Certificate.CertificateBuilder<?, ?> getNewCertificateBuilder() {
-        Certificate.CertificateBuilder<?, ?> builder = Certificate.builder();
+    private static Certificate.CertificateBuilder getNewCertificateBuilder() {
+        Certificate.CertificateBuilder builder = Certificate.builder();
         builder.createDate(LocalDateTime.now());
         builder.lastUpdateDate(LocalDateTime.now());
         return builder;
     }
 
-    private static Certificate buildCertificate(CertificateDto certificateDto, Certificate.CertificateBuilder<?, ?> builder) {
+    private static Certificate buildCertificate(CertificateDto certificateDto, Certificate.CertificateBuilder builder) {
         if (nonNull(certificateDto.getName())) {
             builder.name(certificateDto.getName());
         }
         if (nonNull(certificateDto.getDescription())) {
             builder.description(certificateDto.getDescription());
         }
-        if (nonNull(certificateDto.getPrice())) {
-            builder.price(certificateDto.getPrice());
-        }
-        if (nonNull(certificateDto.getDuration())) {
-            builder.duration(certificateDto.getDuration());
-        }
+        builder.price(certificateDto.getPrice());
+        builder.duration(certificateDto.getDuration());
         return builder.build();
     }
 }

@@ -1,6 +1,7 @@
 package com.epam.esm.service.dto;
 
 import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 
@@ -8,9 +9,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class TagDto implements Serializable {
+public class TagDto extends RepresentationModel<TagDto> {
     @Builder.Default
-    Integer id = null;
+    long id = 0;
     @Builder.Default
     String name = null;
 }

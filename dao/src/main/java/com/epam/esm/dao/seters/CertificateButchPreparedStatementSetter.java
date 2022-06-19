@@ -22,7 +22,7 @@ public class CertificateButchPreparedStatementSetter implements BatchPreparedSta
     public void setValues(PreparedStatement ps, int i) throws SQLException {
         ps.setString(1, certificateList.get(i).getName());
         ps.setString(2, certificateList.get(i).getDescription());
-        ps.setFloat(3, certificateList.get(i).getPrice());
+        ps.setDouble(3, certificateList.get(i).getPrice());
         ps.setTimestamp(4, Timestamp.valueOf(certificateList.get(i).getCreateDate()));
         ps.setTimestamp(5, Timestamp.valueOf(certificateList.get(i).getLastUpdateDate()));
         ps.setInt(6, certificateList.get(i).getDuration());

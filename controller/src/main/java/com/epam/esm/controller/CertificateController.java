@@ -4,6 +4,7 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -23,14 +24,16 @@ public class CertificateController {
 
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
-    public List<CertificateDto> read(@RequestParam(required = false) String sorting,
-                                     @RequestParam(required = false) String name,
-                                     @RequestParam(required = false) String description
+    public PagedModel<CertificateDto> read(@RequestParam(required = false) String sorting,
+                                           @RequestParam(required = false) String name,
+                                           @RequestParam(required = false) String description,
+                                           @RequestParam(required = false) Long page
     ) {
         SearchOptions options = SearchOptions.builder()
                 .sorting(sorting)
                 .subname(name)
                 .subdescription(description)
+                .pageNumber(page)
                 .build();
         return certificateService.get(options);
     }
