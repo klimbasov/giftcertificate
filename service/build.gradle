@@ -23,9 +23,12 @@ dependencies {
     implementation group: 'org.springframework', name: 'spring-context', version: SpringVersion
     testImplementation group: 'org.springframework', name: 'spring-test', version: SpringVersion
     implementation group: 'org.springframework', name: 'spring-web', version: SpringVersion
+    implementation group: 'org.springframework', name: 'spring-tx', version: SpringVersion
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
-    // https://mvnrepository.com/artifact/com.opencsv/opencsv
+    // https://mvnrepository.com/artifact/org.springframework/spring-jdbc
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: SpringVersion
+
 
     implementation project(":dao")
 }
