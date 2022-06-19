@@ -14,6 +14,7 @@ import com.epam.esm.service.util.sorting.SortingDirection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,6 +48,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    @Transactional
     public CertificateDto add(CertificateDto certificateDto) {
         validateCreate(certificateDto);
         Certificate certificate = mapToEntity(certificateDto);
@@ -57,6 +59,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    @Transactional
     public void put(CertificateDto certificateDto) {
         validateUpdatePreMap(certificateDto);
         Certificate oldCertificate = certificateDao.read(certificateDto.getId())
