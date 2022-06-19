@@ -1,10 +1,8 @@
 package com.epam.esm.dao.entity;
 
 import javax.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.Value;
+
+import lombok.*;
 import org.springframework.boot.actuate.audit.listener.AuditListener;
 
 import java.time.LocalDateTime;
@@ -13,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "orders")
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class Order {
 

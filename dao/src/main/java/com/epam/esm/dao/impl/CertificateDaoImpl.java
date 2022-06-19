@@ -28,6 +28,7 @@ public class CertificateDaoImpl implements CertificateDao {
     public CertificateDaoImpl(EntityManager entityManager){
         this.entityManager = entityManager;
     }
+
     @Override
     @Transactional
     public Optional<Certificate> create(Certificate certificate, Set<Long> tagIds){
@@ -37,7 +38,7 @@ public class CertificateDaoImpl implements CertificateDao {
 
     @Override
     public Optional<Certificate> read(long id) {
-        return Optional.of(entityManager.find(Certificate.class, id));
+        return Optional.ofNullable(entityManager.find(Certificate.class, id));
     }
 
     @Override

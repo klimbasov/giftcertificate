@@ -1,5 +1,6 @@
 package com.epam.esm.dao.entity;
 
+import com.epam.esm.dao.constant.TableNames;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,7 +20,7 @@ public class Certificate{
     @Column(name = "id")
     long id = 0;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = TableNames.Certificate.NAME, nullable = false, unique = true)
     String name = "";
 
     @Column(name = "description", nullable = false, length = 1000)

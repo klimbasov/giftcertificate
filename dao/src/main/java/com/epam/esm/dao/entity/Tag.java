@@ -9,12 +9,12 @@ import lombok.*;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 public class Tag {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id = 0;
 
     @NonNull
+    @Column(name = "name", nullable = false, unique = true)
     String name;
 }
