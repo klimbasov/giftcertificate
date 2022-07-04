@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static com.epam.esm.service.util.parser.UrlArrayParser.parse;
 
 @RestController
 @RequestMapping("/certificates")
@@ -24,10 +24,11 @@ public class CertificateController {
 
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
-    public PagedModel<CertificateDto> read(@RequestParam(required = false) String sorting,
+    public PagedModel<CertificateDto> read(@RequestParam(required = false) String tags,
+                                           @RequestParam(required = false) String sorting,
                                            @RequestParam(required = false) String name,
                                            @RequestParam(required = false) String description,
-                                           @RequestParam(required = false) Long page
+                                           @RequestParam(required = false) Integer page
     ) {
         SearchOptions options = SearchOptions.builder()
                 .sorting(sorting)
@@ -35,31 +36,31 @@ public class CertificateController {
                 .subdescription(description)
                 .pageNumber(page)
                 .build();
-        return certificateService.get(options);
+        return certificateService.read(options, parse(tags));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public CertificateDto readById(@PathVariable Integer id) {
-        return certificateService.get(id);
+    public CertificateDto readById(@PathVariable Long id) {
+        return certificateService.read(id);
     }
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public CertificateDto create(@RequestBody CertificateDto certificateDto) {
-        return certificateService.add(certificateDto);
+        return certificateService.create(certificateDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Long id) {
         certificateService.delete(id);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void put(@RequestBody CertificateDto certificateDto, @PathVariable Integer id) {
+    public void put(@RequestBody CertificateDto certificateDto, @PathVariable Long id) {
         CertificateDto identifiedCertificateDto = certificateDto.toBuilder().id(id).build();
-        certificateService.put(identifiedCertificateDto);
+        certificateService.update(identifiedCertificateDto);
     }
 }

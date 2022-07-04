@@ -6,11 +6,17 @@ import org.springframework.hateoas.RepresentationModel;
 @Value
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(toBuilder = true)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class TagDto extends RepresentationModel<TagDto> {
+public class OrderDto extends RepresentationModel<OrderDto> {
     @Builder.Default
     long id = 0;
     @Builder.Default
-    String name = null;
+    String timestamp = null;
+    @Builder.Default
+    long certificateId = 0;
+    @Builder.Default
+    double cost = 0;
+    @Builder.Default
+    long userId = 0;
 }

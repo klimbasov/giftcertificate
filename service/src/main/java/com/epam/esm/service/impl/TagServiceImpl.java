@@ -8,12 +8,11 @@ import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
 import com.epam.esm.service.exception.ext.ObjectAlreadyExist;
 import com.epam.esm.service.util.mapper.TagDtoEntityMapper;
-import com.epam.esm.service.util.sorting.Sorter;
 import com.epam.esm.service.util.sorting.SortingDirection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,38 +35,39 @@ public class TagServiceImpl implements TagService {
         this.tagDao = tagDao;
     }
 
-    private static void sort(List<Tag> list, SortingDirection direction) {
-        Sorter.sort(list, direction, Comparator.comparing(Tag::getName));
-    }
-
     @Override
-    public TagDto add(TagDto tagDto) {
+    public TagDto create(TagDto tagDto) {
         validateCreate(tagDto);
         String tagName = tagDto.getName();
         Tag tag = tagDao.create(new Tag(tagName))
-                .orElseThrow(()-> new ObjectAlreadyExist(OBJECT_ALREADY_EXISTS));
+                .orElseThrow(() -> new ObjectAlreadyExist(OBJECT_ALREADY_EXISTS));
         return mapToDto(tag);
     }
 
     @Override
-    public TagDto get(Integer id) {
+    public TagDto read(Long id) {
         validateRead(id);
         Tag tag = tagDao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
         return mapToDto(tag);
     }
 
     @Override
-    public List<TagDto> get(SearchOptions options) {
+    public PagedModel<TagDto> read(SearchOptions options) {
         validateRead(options);
-        List<Tag> dtoList = tagDao.read(options.getSubname());
-        sort(dtoList, getSortingDirectionByAlias(options.getSorting()));
-        return dtoList.stream().map(TagDtoEntityMapper::mapToDto).collect(Collectors.toList());
+        int offset = options.getPageSize() * (options.getPageNumber() - 1);
+        List<Tag> dtoList = tagDao.read(options.getSubname(), offset, options.getPageSize(), isSortingInverted(options));
+        long totalElements = tagDao.count(options.getSubname());
+        return PagedModel.of(dtoList.stream().map(TagDtoEntityMapper::mapToDto).collect(Collectors.toList()), new PagedModel.PageMetadata(options.getPageSize(), options.getPageNumber(), totalElements));
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(Long id) {
         validateDelete(id);
         throwIfNoEffect(tagDao.delete(id));
+    }
+
+    private boolean isSortingInverted(SearchOptions searchOptions) {
+        return getSortingDirectionByAlias(searchOptions.getSorting()) == SortingDirection.INCR;
     }
 
     private void throwIfNoEffect(int modifiedLines) {

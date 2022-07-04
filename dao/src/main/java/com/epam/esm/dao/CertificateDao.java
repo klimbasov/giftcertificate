@@ -1,11 +1,9 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.dao.entity.Certificate;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Specifies dao pattern of certificate entity.
@@ -16,11 +14,10 @@ public interface CertificateDao {
      * Issue a certificate create operation.
      *
      * @param certificate - object, representing certificate entity.
-     * @param tagIds      - tags ids, that have to be associated with the certificate.
      * @return optional of certificate entity. Certificate id is provided. Optional is empty, if certificate entity
      * was not added.
      */
-    Optional<Certificate> create(Certificate certificate, Set<Long> tagIds);
+    Optional<Certificate> create(Certificate certificate);
 
     /**
      * Issue a certificate read-by-id operation.
@@ -38,7 +35,17 @@ public interface CertificateDao {
      * @param tag  - partial name of tag, search certificates have to respect.
      * @return list of certificates entities, respective to the options.
      */
-    List<Certificate> read(String name, String desc, String tag, int offset, int limit);
+    List<Certificate> read(String name, String desc, String[] tag, int offset, int limit, boolean sortingDirection);
+
+    /**
+     * Issue a certificate count-by-option operation.
+     *
+     * @param name - partial name of the search certificates.
+     * @param desc - partial description of the search certificates.
+     * @param tag  - partial name of tag, search certificates have to respect.
+     * @return quantity of elements
+     */
+    long count(String name, String desc, String[] tag);
 
     /**
      * Issue a certificate delete operation.
@@ -52,7 +59,6 @@ public interface CertificateDao {
      * Issue a certificate update operation.
      *
      * @param certificate - object, representing modified certificate entity.
-     * @param tagIds      - modified tag ids set.
      */
-    void update(Certificate certificate, Set<Long> tagIds);
+    void update(Certificate certificate);
 }

@@ -2,41 +2,30 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.constant.Queries;
-import com.epam.esm.dao.constant.TableNames;
 import com.epam.esm.dao.entity.Certificate;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.mappers.TagRowMapper;
-import com.epam.esm.dao.parametersources.TagParameterSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Root;
-import javax.sql.DataSource;
 import javax.transaction.Transactional;
-import java.util.*;
-
-import static com.epam.esm.dao.util.formatter.AlikeStringSqlFormatter.wrap;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
+@Transactional
 public class TagDaoImpl implements TagDao {
 
     @PersistenceContext
     private final EntityManager entityManager;
 
     @Autowired
-    public TagDaoImpl(EntityManager entityManager){
+    public TagDaoImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
     @Override
-    @Transactional
     public Optional<Tag> create(Tag tag) {
         entityManager.persist(tag);
         return Optional.of(tag);
@@ -48,24 +37,32 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public List<Tag> read(String name) {
-        return new ArrayList<>();
+    public List<Tag> read(String name, int offset, int limit, boolean sortingDirection) {
+        return entityManager.createQuery(Queries.Tag.getSelectQuery(sortingDirection), Tag.class)
+                .setParameter(1, name)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
     }
 
     @Override
-    public Set<Tag> readByCertificateId(long certificateId) {
-        return new HashSet<>();
-    }
-
-    @Override
-    @Transactional
     public int delete(long id) {
-//        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();;
-//        CriteriaDelete<Tag> criteriaDelete = criteriaBuilder.createCriteriaDelete(Tag.class);
-//        Root<Tag> root = criteriaDelete.from(Tag.class);
-//        criteriaDelete.where(criteriaBuilder.equal(root.get()))
         Tag tag = entityManager.find(Tag.class, id);
         entityManager.remove(tag);
+        removeAssociations(tag);
         return 1;
+    }
+
+    @Override
+    public long count(String name) {
+        return entityManager.createQuery(Queries.Tag.getCountQuery(), Long.class)
+                .setParameter(1, name)
+                .getSingleResult();
+    }
+
+    private void removeAssociations(Tag tag) {
+        for (Certificate certificate : tag.getCertificates()) {
+            certificate.getTags().remove(tag);
+        }
     }
 }

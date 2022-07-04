@@ -1,7 +1,6 @@
 package com.epam.esm.dao.entity;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -13,7 +12,8 @@ import java.util.Set;
 @NoArgsConstructor
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     long id = 0;
 
     @NonNull
@@ -21,5 +21,7 @@ public class User {
     String name = "";
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     Set<Order> orders = null;
 }

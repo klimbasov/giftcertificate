@@ -18,30 +18,29 @@ public class SearchOptions extends RepresentationModel<SearchOptions> {
     @Builder.Default
     String subdescription = "";
     @Builder.Default
-    Long pageNumber = 1L;
+    Integer pageNumber = 1;
     @Builder.Default
-    Long pageSize = 20L;
-
+    Integer pageSize = 20;
 
 
     public String getSorting() {
-        return isNull(sorting) ? "" : sorting;
+        return sorting;
     }
 
     public String getSubname() {
-        return isNull(subname) ? "" : subname;
+        return subname;
     }
 
     public String getSubdescription() {
-        return isNull(subdescription) ? "" : subdescription;
+        return subdescription;
     }
 
-    public Long getPageNumber() {
+    public Integer getPageNumber() {
         return isNull(pageNumber) || (pageNumber <= 0) ? 1 : pageNumber;
     }
 
-    public Long getPageSize() {
-        return isNull(pageNumber) || (pageSize <= 0) ? 20 : pageNumber;
+    public Integer getPageSize() {
+        return isNull(pageSize) || (pageSize <= 0) ? 20 : pageSize;
     }
 }
 

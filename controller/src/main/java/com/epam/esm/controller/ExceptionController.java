@@ -6,6 +6,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class ExceptionController {
                 locale);
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
+    @ExceptionHandler({NoHandlerFoundException.class, MethodArgumentTypeMismatchException.class})
     public Map<String, String> handleNoHandlerFoundException(Exception e, Locale locale) {
         return handleExceptionInternal("error.not_found", HttpStatus.NOT_FOUND.value(), locale);
     }

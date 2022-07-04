@@ -1,8 +1,6 @@
 package com.epam.esm.service.util.validator;
 
-import com.epam.esm.service.dto.CertificateDto;
-import com.epam.esm.service.dto.SearchOptions;
-import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.dto.*;
 import com.epam.esm.service.exception.ext.InvalidRequestException;
 import org.springframework.lang.NonNull;
 
@@ -18,20 +16,20 @@ public class ArgumentValidator {
     private ArgumentValidator() {
     }
 
-    public static void validateRead(Integer id) {
+    public static void validateRead(Long id) {
         validateId(id);
     }
 
-    public static void validateDelete(Integer id) {
+    public static void validateDelete(Long id) {
         validateId(id);
     }
 
-    private static void validateId(Integer id) {
+    private static void validateId(Long id) {
         throwIfNull(id);
         throwInconsistentId(id);
     }
 
-    private static void throwInconsistentId(int id) {
+    private static void throwInconsistentId(long id) {
         if (id <= 0) {
             throw new InvalidRequestException();
         }
@@ -91,7 +89,7 @@ public class ArgumentValidator {
         }
 
         private static boolean hasNullFieldRequiredUpdate(@NonNull CertificateDto certificateDto) {
-            return isNull(certificateDto.getId()) || Arrays.stream(new Object[]{certificateDto.getName(),
+            return Arrays.stream(new Object[]{certificateDto.getName(),
                     certificateDto.getDescription(),
                     certificateDto.getPrice(),
                     certificateDto.getDuration(),
@@ -110,6 +108,28 @@ public class ArgumentValidator {
                     || certificateDto.getDescription().length() < MIN_DESCRIPTION_LENGTH
                     || certificateDto.getPrice() < MIN_PRICE
                     || certificateDto.getPrice() > MAX_PRICE;
+        }
+    }
+
+    public static class OrderDtoValidator {
+
+        private OrderDtoValidator() {
+        }
+
+        public static void validateCreate(OrderDto orderDto) {
+            throwIfNull(orderDto);
+            throwFieldInconsistencyCreate(orderDto);
+        }
+
+        private static void throwFieldInconsistencyCreate(OrderDto orderDto) {
+            if (hasFieldInconsistencyCreate(orderDto)) {
+                throw new InvalidRequestException(ILLEGAL_ARGUMENT);
+            }
+        }
+
+        private static boolean hasFieldInconsistencyCreate(@NonNull OrderDto orderDto) {
+            return orderDto.getCertificateId() < MIN_ID
+                    || orderDto.getUserId() < MIN_ID;
         }
     }
 

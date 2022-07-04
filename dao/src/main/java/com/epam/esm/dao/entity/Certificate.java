@@ -1,26 +1,27 @@
 package com.epam.esm.dao.entity;
 
-import com.epam.esm.dao.constant.TableNames;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
 @Builder(toBuilder = true)
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "certificates")
-public class Certificate{
+public class Certificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     long id = 0;
 
-    @Column(name = TableNames.Certificate.NAME, nullable = false, unique = true)
+    @Column(name = "name", nullable = false, unique = true)
     String name = "";
 
     @Column(name = "description", nullable = false, length = 1000)
@@ -32,13 +33,16 @@ public class Certificate{
     @Column(name = "duration", nullable = false)
     int duration = 0;
 
-    @Column(name = "createDate", nullable = false)
+    @Column(name = "create_date", nullable = false)
     LocalDateTime createDate = null;
 
-    @Column(name = "lastUpdateDate", nullable = false)
+    @Column(name = "searchable", nullable = false)
+    boolean isSearchable = true;
+
+    @Column(name = "last_update_date", nullable = false)
     LocalDateTime lastUpdateDate = null;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinTable(name = "certificate_tag",
             joinColumns = @JoinColumn(name = "certificate_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))

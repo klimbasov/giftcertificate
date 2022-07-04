@@ -6,8 +6,6 @@ import com.epam.esm.service.exception.ext.InvalidRequestException;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
 import org.springframework.hateoas.PagedModel;
 
-import java.util.List;
-
 /**
  * Specifies a certificate CRUD business logic.
  */
@@ -18,19 +16,20 @@ public interface CertificateService {
      * @param certificateDto - dto containing certificate to be added.
      * @return fully initialized dto. Creation and last update dates and certificate id are provided.
      * @throws InvalidRequestException - if input dto state is invalid.
-     * For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
+     *                                 For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
      */
-    CertificateDto add(CertificateDto certificateDto);
+    CertificateDto create(CertificateDto certificateDto);
 
     /**
      * Issue a certificate update operation.
      *
      * @param certificateDto - partially initialized dto, containing fields to be updated. Id field must be initialized.
-     * @throws NoSuchObjectException          - if there is no object, associated with the provided id.
+     * @return dto, that represents updated entity.
+     * @throws NoSuchObjectException   - if there is no object, associated with the provided id.
      * @throws InvalidRequestException - if input dto state is invalid.
-     * For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
+     *                                 For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
      */
-    void put(CertificateDto certificateDto);
+    CertificateDto update(CertificateDto certificateDto);
 
     /**
      * Issue a certificate read-by-id operation.
@@ -39,7 +38,7 @@ public interface CertificateService {
      * @return - fully initialized dto, associated with input id.
      * @throws NoSuchObjectException - if there is no object, associated with the provided id.
      */
-    CertificateDto get(Integer id);
+    CertificateDto read(Long id);
 
     /**
      * Issue a certificate read-by-option operation.
@@ -47,14 +46,7 @@ public interface CertificateService {
      * @param searchOptions - object, containing options, the search certificates must conform to.
      * @return - list of fully initialized dtos, conformed to provided options.
      */
-    PagedModel<CertificateDto> get(SearchOptions searchOptions);
-
-    /**
-     * Issue a certificate read-all operation.
-     *
-     * @return - list of fully initialized dtos, conformed to provided options.
-     */
-    List<CertificateDto> getAll();
+    PagedModel<CertificateDto> read(SearchOptions searchOptions, String[] tags);
 
     /**
      * Issue a certificate delete operation.
@@ -62,5 +54,5 @@ public interface CertificateService {
      * @param id - id value, associated with an object.
      * @throws NoSuchObjectException - if there is no object, associated with the provided id.
      */
-    void delete(Integer id);
+    void delete(Long id);
 }

@@ -6,7 +6,6 @@ import com.epam.esm.service.dto.CertificateDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.service.util.LocalDateTimeFormatter.toIso8601Str;
@@ -22,19 +21,22 @@ public class CertificateDtoEntityMapper {
         return buildCertificate(certificateDto, builder);
     }
 
-    public static Certificate mapToEntity(CertificateDto certificateDto, Certificate certificate) {
-        Certificate.CertificateBuilder builder = getExistingCertificateBuilder(certificate);
-        return buildCertificate(certificateDto, builder);
+    public static void mapToEntity(CertificateDto certificateDto, Certificate certificate) {
+        if (nonNull(certificateDto.getName())) {
+            certificate.setName(certificateDto.getName());
+        }
+        if (nonNull(certificateDto.getDescription())) {
+            certificate.setDescription(certificateDto.getDescription());
+        }
+        if (certificateDto.getDuration() != 0) {
+            certificate.setDuration(certificateDto.getDuration());
+        }
+        if (certificateDto.getPrice() != 0) {
+            certificate.setPrice(certificateDto.getPrice());
+        }
     }
 
-    private static Certificate.CertificateBuilder getExistingCertificateBuilder(Certificate certificate) {
-        Certificate.CertificateBuilder builder = certificate.toBuilder();
-        builder.createDate(certificate.getCreateDate());
-        builder.lastUpdateDate(LocalDateTime.now());
-        return builder;
-    }
-
-    public static CertificateDto mapToDto(Certificate certificate, Set<Tag> tags) {
+    public static CertificateDto mapToDto(Certificate certificate) {
         return CertificateDto.builder()
                 .id(certificate.getId())
                 .name(certificate.getName())
@@ -43,7 +45,7 @@ public class CertificateDtoEntityMapper {
                 .createDate(toIso8601Str(certificate.getCreateDate()))
                 .lastUpdateDate(toIso8601Str(certificate.getLastUpdateDate()))
                 .duration(certificate.getDuration())
-                .tags(tags.stream().map(Tag::getName).collect(Collectors.toList()))
+                .tags(certificate.getTags().stream().map(Tag::getName).collect(Collectors.toList()))
                 .build();
     }
 
@@ -74,8 +76,12 @@ public class CertificateDtoEntityMapper {
         if (nonNull(certificateDto.getDescription())) {
             builder.description(certificateDto.getDescription());
         }
-        builder.price(certificateDto.getPrice());
-        builder.duration(certificateDto.getDuration());
+        if (certificateDto.getDuration() != 0) {
+            builder.duration(certificateDto.getDuration());
+        }
+        if (certificateDto.getPrice() != 0) {
+            builder.price(certificateDto.getPrice());
+        }
         return builder.build();
     }
 }

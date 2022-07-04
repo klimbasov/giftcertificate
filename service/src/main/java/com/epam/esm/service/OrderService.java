@@ -1,44 +1,44 @@
 package com.epam.esm.service;
 
+import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.SearchOptions;
-import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ext.InvalidRequestException;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
 import org.springframework.hateoas.PagedModel;
 
 /**
- * Specifies a tag CRD business logic.
+ * Specifies an order CRD business logic.
  */
-public interface TagService {
+public interface OrderService {
     /**
-     * Issue a tag create operation.
+     * Issue an order create operation.
      *
-     * @param tagDto - dto containing tag to be added.
-     * @return fully initialized dto. Tag id is provided.
+     * @param orderInputDto - dto containing order to be added.
+     * @return fully initialized dto. Order id is provided.
      * @throws InvalidRequestException - if input dto state is invalid.
      *                                 For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
      */
-    TagDto create(TagDto tagDto);
+    OrderDto create(OrderDto orderInputDto);
 
     /**
-     * Issue a tag read-by-id operation.
+     * Issue an order read-by-id operation.
      *
      * @param id - id value, associated with an object.
      * @return - fully initialized dto, associated with input id.
      * @throws NoSuchObjectException - if there is no object, associated with the provided id.
      */
-    TagDto read(Long id);
+    OrderDto read(Long id);
 
     /**
-     * Issue a tag read-by-option operation.
+     * Issue an order read-by-option operation.
      *
-     * @param options - object, containing options, the search tags must conform to.
+     * @param options - object, containing options, the search orders must conform to.
      * @return - list of fully initialized dtos, conformed to provided options.
      */
-    PagedModel<TagDto> read(SearchOptions options);
+    PagedModel<OrderDto> read(SearchOptions options);
 
     /**
-     * Issue a tag delete operation.
+     * Issue an order delete operation.
      *
      * @param id - id value, associated with an object.
      * @throws NoSuchObjectException - if there is no object, associated with the provided id.
