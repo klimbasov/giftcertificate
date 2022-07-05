@@ -26,11 +26,18 @@ public interface OrderDao {
     Optional<Order> read(long id);
 
     /**
-     * Issue an order read-bu-name operation.
+     * Issue an order read operation.
      *
      * @return list of tags entities, conforming to the options.
      */
     List<Order> read(int offset, int page);
+
+    /**
+     * Issue an order read-by-user-id operation.
+     *
+     * @return list of tags entities, conforming to the options.
+     */
+    List<Order> read(int offset, int page, long userId);
 
     /**
      * Issue an order delete operation.
@@ -47,4 +54,11 @@ public interface OrderDao {
      * @return quantity of elements, that corresponds to name
      */
     long count();
+
+    /**
+     * Issue an order count-by-user-id operation. Included to maintain pagination mechanic
+     *
+     * @return quantity of elements, that corresponds to name
+     */
+    long count(long userId);
 }

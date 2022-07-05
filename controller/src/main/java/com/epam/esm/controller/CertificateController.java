@@ -1,8 +1,11 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.hateoas.EntityLinkCreator;
+import com.epam.esm.hateoas.PageLinkCreator;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
+import com.epam.esm.util.LinksSetter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -15,11 +18,17 @@ import static com.epam.esm.service.util.parser.UrlArrayParser.parse;
 @RequestMapping("/certificates")
 public class CertificateController {
 
+    private final EntityLinkCreator<CertificateDto> entityLinkCreator;
+    private final PageLinkCreator pageLinkCreator;
     private final CertificateService certificateService;
 
     @Autowired
-    public CertificateController(final CertificateService certificateService) {
+    public CertificateController(final CertificateService certificateService,
+                                 EntityLinkCreator<CertificateDto> linkCreator,
+                                 PageLinkCreator pageLinkCreator) {
         this.certificateService = certificateService;
+        this.entityLinkCreator = linkCreator;
+        this.pageLinkCreator = pageLinkCreator;
     }
 
     @GetMapping("/")
@@ -36,31 +45,40 @@ public class CertificateController {
                 .subdescription(description)
                 .pageNumber(page)
                 .build();
-        return certificateService.read(options, parse(tags));
+        PagedModel<CertificateDto> model = certificateService.read(options, parse(tags));
+        LinksSetter.setLinks(model, entityLinkCreator, pageLinkCreator);
+        return model;
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public CertificateDto readById(@PathVariable Long id) {
-        return certificateService.read(id);
+        CertificateDto model = certificateService.read(id);
+        entityLinkCreator.addLinks(model);
+        return model;
     }
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public CertificateDto create(@RequestBody CertificateDto certificateDto) {
-        return certificateService.create(certificateDto);
+    public CertificateDto create(@RequestBody CertificateDto dto) {
+        CertificateDto model = certificateService.create(dto);
+        entityLinkCreator.addLinks(model);
+        return model;
+    }
+
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CertificateDto patch(@RequestBody CertificateDto dto, @PathVariable Long id) {
+        dto.setId(id);
+        certificateService.update(dto);
+        CertificateDto model = certificateService.read(id);
+        entityLinkCreator.addLinks(model);
+        return model;
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         certificateService.delete(id);
-    }
-
-    @PatchMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void put(@RequestBody CertificateDto certificateDto, @PathVariable Long id) {
-        CertificateDto identifiedCertificateDto = certificateDto.toBuilder().id(id).build();
-        certificateService.update(identifiedCertificateDto);
     }
 }

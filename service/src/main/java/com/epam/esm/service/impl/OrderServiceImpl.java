@@ -58,6 +58,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public PagedModel<OrderDto> read(SearchOptions options, long userId) {
+        validateRead(options);
+        validateRead(userId);
+        int pageSize = options.getPageSize();
+        int offset = pageSize * (options.getPageNumber() - 1);
+        List<Order> orders = orderDao.read(offset, pageSize, userId);
+        long totalElements = orderDao.count(userId);
+        return PagedModel.of(mapper.mapToDto(orders), new PagedModel.PageMetadata(pageSize, options.getPageNumber(), totalElements));
+    }
+
+    @Override
     public void delete(Long id) {
         validateDelete(id);
         orderDao.delete(id);

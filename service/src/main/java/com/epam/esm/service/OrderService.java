@@ -38,6 +38,15 @@ public interface OrderService {
     PagedModel<OrderDto> read(SearchOptions options);
 
     /**
+     * Issue an order read-by-user-id-and-option operation.
+     *
+     * @param options - object, containing options, the search orders must conform to.
+     * @param userId  - id of the orders owning user.
+     * @return - list of fully initialized dtos, conformed to provided options.
+     */
+    PagedModel<OrderDto> read(SearchOptions options, long userId);
+
+    /**
      * Issue an order delete operation.
      *
      * @param id - id value, associated with an object.

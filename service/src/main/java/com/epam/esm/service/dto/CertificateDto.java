@@ -5,7 +5,8 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 
-@Value
+@Data
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

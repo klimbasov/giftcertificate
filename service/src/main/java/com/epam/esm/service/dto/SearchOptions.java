@@ -24,15 +24,15 @@ public class SearchOptions extends RepresentationModel<SearchOptions> {
 
 
     public String getSorting() {
-        return sorting;
+        return isNull(sorting) ? "" : sorting;
     }
 
     public String getSubname() {
-        return subname;
+        return isNull(subname) ? "" : subname;
     }
 
     public String getSubdescription() {
-        return subdescription;
+        return isNull(subdescription) ? "" : subdescription;
     }
 
     public Integer getPageNumber() {

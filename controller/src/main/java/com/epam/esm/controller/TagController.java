@@ -1,8 +1,11 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.hateoas.EntityLinkCreator;
+import com.epam.esm.hateoas.PageLinkCreator;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.util.LinksSetter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -13,17 +16,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/tag")
 public class TagController {
 
+    private final EntityLinkCreator<TagDto> entityLinkCreator;
+    private final PageLinkCreator pageLinkCreator;
     private final TagService tagService;
 
     @Autowired
-    public TagController(TagService tagService) {
+    public TagController(TagService tagService,
+                         EntityLinkCreator<TagDto> entityLinkCreator,
+                         PageLinkCreator pageLinkCreator) {
         this.tagService = tagService;
+        this.entityLinkCreator = entityLinkCreator;
+        this.pageLinkCreator = pageLinkCreator;
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public TagDto readById(@PathVariable Long id) {
-        return tagService.read(id);
+        TagDto model = tagService.read(id);
+        entityLinkCreator.addLinks(model);
+        return model;
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,13 +47,17 @@ public class TagController {
                 .subname(name)
                 .pageNumber(page)
                 .build();
-        return tagService.read(options);
+        PagedModel<TagDto> model = tagService.read(options);
+        LinksSetter.setLinks(model, entityLinkCreator, pageLinkCreator);
+        return model;
     }
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public TagDto create(@RequestBody TagDto tagDto) {
-        return tagService.create(tagDto);
+    public TagDto create(@RequestBody TagDto dto) {
+        TagDto model = tagService.create(dto);
+        entityLinkCreator.addLinks(model);
+        return model;
     }
 
     @DeleteMapping("/{id}")

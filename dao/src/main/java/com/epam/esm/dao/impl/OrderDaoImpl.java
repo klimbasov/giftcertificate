@@ -43,6 +43,14 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
+    public List<Order> read(int offset, int limit, long userId) {
+        return manager.createQuery(Queries.Order.getSelectByUserIdQuery(), Order.class)
+                .setParameter(1, userId)
+                .setFirstResult(offset)
+                .setMaxResults(limit).getResultList();
+    }
+
+    @Override
     public int delete(long id) {
         int result = 0;
         Order order = manager.find(Order.class, id);
@@ -57,5 +65,12 @@ public class OrderDaoImpl implements OrderDao {
     @Override
     public long count() {
         return manager.createQuery(Queries.Order.getCountQuery(), Long.class).getSingleResult();
+    }
+
+    @Override
+    public long count(long userId) {
+        return manager.createQuery(Queries.Order.getCountByUserIdQuery(), Long.class)
+                .setParameter(1, userId)
+                .getSingleResult();
     }
 }

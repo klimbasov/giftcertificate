@@ -6,11 +6,10 @@ public enum SortingDirection {
     INCR(Aliases.INCR),
     DECR(Aliases.DECR);
 
+    private static final SortingDirection DEFAULT_DIRECTION = INCR;
     private final String alias;
 
-    private static final SortingDirection DEFAULT_DIRECTION = INCR;
-
-    SortingDirection(String aliases){
+    SortingDirection(String aliases) {
         this.alias = aliases;
     }
 
@@ -27,6 +26,7 @@ class Aliases {
 
     static final String INCR = "incr";
     static final String DECR = "decr";
+
     private Aliases() {
     }
 }

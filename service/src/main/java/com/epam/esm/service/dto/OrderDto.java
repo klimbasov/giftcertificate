@@ -3,7 +3,7 @@ package com.epam.esm.service.dto;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
-@Value
+@Data
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor

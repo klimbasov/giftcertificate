@@ -114,6 +114,16 @@ public final class Queries {
                 "order by o.timestamp";
         private static final String COUNT = "select count(o) " +
                 "from Order o";
+        private static final String SELECT_BY_USER_ID = "select o " +
+                "from Order o " +
+                "join u User u " +
+                "where u.id = ?1 " +
+                "order by o.timestamp";
+        private static final String COUNT_BY_USER_ID = "select count(o) " +
+                "from Order o " +
+                "join u User u " +
+                "where u.id = ?1 " +
+                "order by o.timestamp";
 
         private Order() {
         }
@@ -124,6 +134,14 @@ public final class Queries {
 
         public static String getCountQuery() {
             return COUNT;
+        }
+
+        public static String getSelectByUserIdQuery() {
+            return SELECT_BY_USER_ID;
+        }
+
+        public static String getCountByUserIdQuery() {
+            return COUNT_BY_USER_ID;
         }
     }
 
