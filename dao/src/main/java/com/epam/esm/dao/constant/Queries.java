@@ -12,8 +12,9 @@ public final class Queries {
         private static final String FROM = "from Certificate as c ";
         private static final String JOIN = "left join c.tags as t ";
         private static final String WHERE =
-                "where ( c.name like concat('%',?1,'%') ) " +
-                        "and ( c.description like concat('%',?2,'%') ) " +
+                "where ( c.name like concat('%',?1,'%') ) ";
+        private static final String DESCRIPTION_SEARCH_CONDITION =
+                "and ( c.description like concat('%',?2,'%') ) " +
                         "and c.isSearchable = true ";
         private static final String TAG_CONDITION =
                 "and ( t.name in ?3 ) " +
@@ -26,10 +27,16 @@ public final class Queries {
         private Certificate() {
         }
 
-        public static String getSelectQuery(boolean buildWithTags, boolean isInverted) {
+        public static String getSelectSearchableQuery(boolean buildWithTags, boolean isInverted) {
             StringBuilder builder = new StringBuilder();
             buildQuery(builder, buildWithTags, SELECT_ENTITIES);
             buildOrder(isInverted, builder);
+            return builder.toString();
+        }
+
+        public static String getSelectByNameQuery() {
+            StringBuilder builder = new StringBuilder();
+            builder.append(SELECT).append(SELECT_ENTITIES).append(FROM).append(WHERE);
             return builder.toString();
         }
 
@@ -51,6 +58,7 @@ public final class Queries {
                 builder.append(JOIN);
             }
             builder.append(WHERE);
+            builder.append(DESCRIPTION_SEARCH_CONDITION);
             if (buildWithTags) {
                 builder.append(TAG_CONDITION);
             }
@@ -75,6 +83,22 @@ public final class Queries {
                 "order by t.name";
         private static final String INVERSE_ORDER = " DESC";
 
+        private static final String SELECT_MOST_WIDELY_USED_TAG_OF_USER_WITH_HIGHEST_COST_OF_ORDERS =
+                "select t.id, t.name from " +
+                        "(select sct.id as id from " +
+                        "(select u.id as id " +
+                        "from users u left join orders o on o.user = u.id group by u.id " +
+                        "order by sum(o.cost) desc limit 1 " +
+                        ") as sct " +
+                        ") as u " +
+                        "left join orders as o on o.user = u.id " +
+                        "left join certificates as c on c.id = o.certificate_id " +
+                        "left join certificate_tag as ct on ct.certificate_id = c.id " +
+                        "left join tags as t on t.id = ct.tag_id " +
+                        "group by t.id " +
+                        "order by count(o.id) desc limit 1;";
+
+
         private Tag() {
         }
 
@@ -84,6 +108,10 @@ public final class Queries {
 
         public static String getCountQuery() {
             return COUNT;
+        }
+
+        public static String getComplexSelectQuery() {
+            return SELECT_MOST_WIDELY_USED_TAG_OF_USER_WITH_HIGHEST_COST_OF_ORDERS;
         }
     }
 
@@ -116,12 +144,12 @@ public final class Queries {
                 "from Order o";
         private static final String SELECT_BY_USER_ID = "select o " +
                 "from Order o " +
-                "join u User u " +
+                "join o.user u " +
                 "where u.id = ?1 " +
                 "order by o.timestamp";
         private static final String COUNT_BY_USER_ID = "select count(o) " +
                 "from Order o " +
-                "join u User u " +
+                "join o.user u " +
                 "where u.id = ?1 " +
                 "order by o.timestamp";
 

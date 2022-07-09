@@ -44,6 +44,7 @@ public interface CertificateService {
      * Issue a certificate read-by-option operation.
      *
      * @param searchOptions - object, containing options, the search certificates must conform to.
+     * @param tags          - partial name of tag, search certificates have to respect.
      * @return - list of fully initialized dtos, conformed to provided options.
      */
     PagedModel<CertificateDto> read(SearchOptions searchOptions, String[] tags);

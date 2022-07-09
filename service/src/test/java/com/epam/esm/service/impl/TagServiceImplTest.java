@@ -2,34 +2,30 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Tag;
+import com.epam.esm.dao.impl.TagDaoImpl;
 import com.epam.esm.service.TagService;
-import com.epam.esm.service.config.TestServiceConfig;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ext.InvalidRequestException;
+import com.epam.esm.service.util.mapper.impl.TagDtoEntityMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Matchers.any;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestServiceConfig.class)
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TagServiceImplTest {
 
-    @Autowired
-    TagDao tagDao;
+    @Mock
+    TagDao tagDao = Mockito.mock(TagDaoImpl.class);
 
     TagService tagService;
 
@@ -37,19 +33,25 @@ class TagServiceImplTest {
 
     @BeforeAll
     public void setup() {
-        Tag tag1 = Tag.builder().id(1).name("name1").build();
-        Tag tag3 = Tag.builder().id(3).name("name3").build();
-        Tag tag4 = Tag.builder().id(4).name("name4").build();
-        Tag createdTag = Tag.builder().id(5).name("new name").build();
+        configureTagDaoMock();
+        tagService = new TagServiceImpl(tagDao, new TagDtoEntityMapper());
+    }
+
+    private void configureTagDaoMock() {
+        Tag tag1 = new Tag(1, "name1", null);
+        Tag tag3 = new Tag(3, "name3", null);
+        Tag tag4 = new Tag(4, "name4", null);
+        Tag createdTag = new Tag(5, "new name", null);
         sample = new TagDto(0, createdTag.getName());
 
         Mockito.when(tagDao.read(1)).thenReturn(Optional.ofNullable(tag1));
-        Mockito.when(tagDao.read(tag1.getName())).thenReturn(Arrays.asList(tag1));
+        Mockito.when(tagDao.read(tag1.getName(), 0, 20, true)).thenReturn(Arrays.asList(tag1));
         Mockito.when(tagDao.read(1)).thenReturn(Optional.of(tag1));
-        Mockito.when(tagDao.read("name")).thenReturn(Arrays.asList(tag1, tag3, tag4));
-        Mockito.when(tagDao.create(Mockito.any(Tag.class))).thenReturn(Optional.of(createdTag));
-        Mockito.when(tagDao.readByCertificateId(1)).thenReturn(new HashSet<>(Arrays.asList(tag1, tag4)));
-        tagService = new TagServiceImpl(tagDao);
+        Mockito.when(tagDao.read("name", 0, 20, true)).thenReturn(Arrays.asList(tag1, tag3, tag4));
+        Mockito.when(tagDao.create(any(Tag.class))).thenReturn(Optional.of(createdTag));
+        Mockito.when(tagDao.readMostUsedTagOfUserWithHighestOrderCost()).thenReturn(Optional.of(tag1));
+        Mockito.when(tagDao.count("mane")).thenReturn((long) Arrays.asList(tag1, tag3, tag4).size());
+        Mockito.when(tagDao.count(tag1.getName())).thenReturn(1L);
     }
 
     @Test
@@ -57,31 +59,31 @@ class TagServiceImplTest {
         String expectedName = sample.getName();
         TagDto actual;
 
-        actual = assertDoesNotThrow(() -> tagService.add(sample));
+        actual = assertDoesNotThrow(() -> tagService.create(sample));
         assertEquals(expectedName, actual.getName());
         assertTrue(actual.getId() > 0);
     }
 
     @Test
     void addNull() {
-        assertThrows(InvalidRequestException.class, () -> tagService.add(null));
+        assertThrows(InvalidRequestException.class, () -> tagService.create(null));
     }
 
     @Test
     void addInvalidName() {
         TagDto dtoSmallName = new TagDto(1, "");
         TagDto dtoLargeName = new TagDto(1, "qwerqwerqwerqwerqwerqwerqwerqwerqwerqwerqwerqwerqwe");
-        assertThrows(InvalidRequestException.class, () -> tagService.add(dtoSmallName));
-        assertThrows(InvalidRequestException.class, () -> tagService.add(dtoLargeName));
+        assertThrows(InvalidRequestException.class, () -> tagService.create(dtoSmallName));
+        assertThrows(InvalidRequestException.class, () -> tagService.create(dtoLargeName));
     }
 
     @Test
     void getByExistingId() {
-        int spottedId = 1;
-        int expected = spottedId;
-        int actual;
+        long spottedId = 1;
+        long expected = spottedId;
+        long actual;
 
-        actual = assertDoesNotThrow(() -> tagService.get(spottedId)).getId();
+        actual = assertDoesNotThrow(() -> tagService.read(spottedId)).getId();
         assertEquals(expected, actual);
     }
 }

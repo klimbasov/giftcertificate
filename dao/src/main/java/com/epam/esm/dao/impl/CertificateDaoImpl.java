@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.epam.esm.dao.constant.Queries.Certificate.getCountQuery;
-import static com.epam.esm.dao.constant.Queries.Certificate.getSelectQuery;
+import static com.epam.esm.dao.constant.Queries.Certificate.getSelectSearchableQuery;
 
 @Repository
 @Transactional
@@ -32,8 +32,9 @@ public class CertificateDaoImpl implements CertificateDao {
 
     @Override
     public Optional<Certificate> create(Certificate certificate) {
-        manager.persist(certificate);
-        return Optional.of(certificate);
+        Optional<Certificate> optional = Optional.empty();
+        optional = createIfDoseNotExist(certificate, optional);
+        return optional;
     }
 
     @Override
@@ -42,8 +43,8 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     @Override
-    public List<Certificate> read(String name, String desc, String[] tag, int offset, int limit, boolean sortingDirection) {
-        TypedQuery<Certificate> query = manager.createQuery(getSelectQuery((tag.length > 0), sortingDirection), Certificate.class);
+    public List<Certificate> read(String name, String desc, String[] tag, int offset, int limit, boolean ordering) {
+        TypedQuery<Certificate> query = manager.createQuery(getSelectSearchableQuery((tag.length > 0), ordering), Certificate.class);
         setQueryParameters(name, desc, tag, query);
         return query.setFirstResult(offset).setMaxResults(limit).getResultList();
     }
@@ -65,6 +66,20 @@ public class CertificateDaoImpl implements CertificateDao {
     @Override
     public void update(Certificate certificate) {
         manager.merge(certificate);
+    }
+
+    private Optional<Certificate> createIfDoseNotExist(Certificate certificate, Optional<Certificate> optional) {
+        if (doseNotExist(certificate)) {
+            optional = Optional.of(certificate);
+            manager.persist(certificate);
+        }
+        return optional;
+    }
+
+    private boolean doseNotExist(Certificate certificate) {
+        return !manager.createQuery(Queries.Certificate.getSelectByNameQuery(), Certificate.class)
+                .setParameter(1, certificate.getName())
+                .getResultList().stream().findAny().isPresent();
     }
 
     private void setQueryParameters(String name, String desc, String[] tag, Query query) {

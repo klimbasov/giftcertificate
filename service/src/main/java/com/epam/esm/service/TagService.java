@@ -37,6 +37,15 @@ public interface TagService {
      */
     PagedModel<TagDto> read(SearchOptions options);
 
+
+    /**
+     * Issue a tag read-most-used-of-user-with-highest-order-cost operation
+     *
+     * @return - fully initialized dto, associated with input id.
+     * @throws NoSuchObjectException - if there is no object, associated with the provided id.
+     */
+    TagDto readMostUsedTagOfUserWithHighestOrderCost();
+
     /**
      * Issue a tag delete operation.
      *

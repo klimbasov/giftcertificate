@@ -30,19 +30,22 @@ public interface CertificateDao {
     /**
      * Issue a certificate read-by-option operation.
      *
-     * @param name - partial name of the search certificates.
-     * @param desc - partial description of the search certificates.
-     * @param tag  - partial name of tag, search certificates have to respect.
+     * @param name     - partial name of the search certificates.
+     * @param desc     - partial description of the search certificates.
+     * @param tag      - partial name of tag, search certificates have to respect.
+     * @param ordering - if true, ordering is direct. Otherwise, ordering is inverted.
+     * @param limit    - maximum size of spotting list.
+     * @param offset   - offset in entities in conforming list.
      * @return list of certificates entities, respective to the options.
      */
-    List<Certificate> read(String name, String desc, String[] tag, int offset, int limit, boolean sortingDirection);
+    List<Certificate> read(String name, String desc, String[] tag, int offset, int limit, boolean ordering);
 
     /**
      * Issue a certificate count-by-option operation.
      *
      * @param name - partial name of the search certificates.
      * @param desc - partial description of the search certificates.
-     * @param tag  - partial name of tag, search certificates have to respect.
+     * @param tag  - names of tag, search certificates have to respect.
      * @return quantity of elements
      */
     long count(String name, String desc, String[] tag);

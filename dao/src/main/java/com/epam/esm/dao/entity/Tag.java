@@ -8,6 +8,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "tags")
+@Builder(toBuilder = true)
 @RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor

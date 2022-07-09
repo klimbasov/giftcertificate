@@ -34,10 +34,10 @@ public class CertificateController {
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
     public PagedModel<CertificateDto> read(@RequestParam(required = false) String tags,
-                                           @RequestParam(required = false) String sorting,
-                                           @RequestParam(required = false) String name,
-                                           @RequestParam(required = false) String description,
-                                           @RequestParam(required = false) Integer page
+                                           @RequestParam(required = false, defaultValue = "") String sorting,
+                                           @RequestParam(required = false, defaultValue = "") String name,
+                                           @RequestParam(required = false, defaultValue = "") String description,
+                                           @RequestParam(required = false, defaultValue = "1") Integer page
     ) {
         SearchOptions options = SearchOptions.builder()
                 .sorting(sorting)

@@ -6,8 +6,8 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
-import com.epam.esm.service.exception.ext.ObjectAlreadyExist;
-import com.epam.esm.service.util.mapper.OrderDtoEntityMapper;
+import com.epam.esm.service.exception.ext.ObjectAlreadyExistException;
+import com.epam.esm.service.util.mapper.impl.OrderDtoEntityMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,8 @@ import java.util.List;
 
 import static com.epam.esm.service.constant.ExceptionMessages.NO_SUCH_OBJECT;
 import static com.epam.esm.service.constant.ExceptionMessages.OBJECT_ALREADY_EXISTS;
+import static com.epam.esm.service.util.pagination.Pager.toPage;
+import static com.epam.esm.service.util.pagination.validator.PageValidator.validate;
 import static com.epam.esm.service.util.validator.ArgumentValidator.OrderDtoValidator.validateCreate;
 import static com.epam.esm.service.util.validator.ArgumentValidator.SearchOptionsValidator.validateRead;
 import static com.epam.esm.service.util.validator.ArgumentValidator.validateDelete;
@@ -36,36 +38,44 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDto create(OrderDto orderDto) {
         validateCreate(orderDto);
-        Order order = orderDao.create(mapper.mapToEntity(orderDto)).orElseThrow(() -> new ObjectAlreadyExist(OBJECT_ALREADY_EXISTS));
-        return mapper.mapToDto(order);
+        Order order = orderDao.create(mapper.mapToEntity(orderDto)).orElseThrow(() -> new ObjectAlreadyExistException(OBJECT_ALREADY_EXISTS));
+        return mapper.mapToModel(order);
     }
 
     @Override
     public OrderDto read(Long id) {
         validateRead(id);
         Order order = orderDao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
-        return mapper.mapToDto(order);
+        return mapper.mapToModel(order);
     }
 
     @Override
     public PagedModel<OrderDto> read(SearchOptions options) {
         validateRead(options);
+
         int pageSize = options.getPageSize();
+        int pageNumber = options.getPageNumber();
         int offset = pageSize * (options.getPageNumber() - 1);
-        List<Order> orders = orderDao.read(offset, pageSize);
+
         long totalElements = orderDao.count();
-        return PagedModel.of(mapper.mapToDto(orders), new PagedModel.PageMetadata(pageSize, options.getPageNumber(), totalElements));
+        validate(totalElements, pageSize, pageNumber);
+        List<Order> orders = orderDao.read(offset, pageSize);
+        return toPage(mapper.mapToModels(orders), pageNumber, pageSize, totalElements);
     }
 
     @Override
     public PagedModel<OrderDto> read(SearchOptions options, long userId) {
         validateRead(options);
         validateRead(userId);
+
         int pageSize = options.getPageSize();
+        int pageNumber = options.getPageNumber();
         int offset = pageSize * (options.getPageNumber() - 1);
-        List<Order> orders = orderDao.read(offset, pageSize, userId);
+
         long totalElements = orderDao.count(userId);
-        return PagedModel.of(mapper.mapToDto(orders), new PagedModel.PageMetadata(pageSize, options.getPageNumber(), totalElements));
+        validate(totalElements, pageSize, pageNumber);
+        List<Order> orders = orderDao.read(offset, pageSize, userId);
+        return toPage(mapper.mapToModels(orders), pageNumber, pageSize, totalElements);
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("")
 public class OrderController {
 
     private final EntityLinkCreator<OrderDto> entityLinkCreator;
@@ -28,7 +29,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("order/")
+    @PostMapping("order")
     @ResponseStatus(HttpStatus.CREATED)
     public OrderDto create(@RequestBody OrderDto dto) {
         OrderDto model = orderService.create(dto);
@@ -36,7 +37,7 @@ public class OrderController {
         return model;
     }
 
-    @GetMapping("order/")
+    @GetMapping("order")
     @ResponseStatus(HttpStatus.OK)
     public PagedModel<OrderDto> read(@RequestParam(required = false) Integer page) {
         SearchOptions options = SearchOptions.builder()
@@ -67,7 +68,7 @@ public class OrderController {
         SearchOptions options = SearchOptions.builder()
                 .pageNumber(page)
                 .build();
-        PagedModel<OrderDto> model = orderService.read(options);
+        PagedModel<OrderDto> model = orderService.read(options, userId);
         LinksSetter.setLinks(model, entityLinkCreator, pageLinkCreator);
         return model;
     }

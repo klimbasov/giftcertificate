@@ -1,11 +1,16 @@
 package com.epam.esm.service.util.validator;
 
-import com.epam.esm.service.dto.*;
+import com.epam.esm.service.dto.CertificateDto;
+import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.service.dto.SearchOptions;
+import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ext.InvalidRequestException;
+import org.apache.commons.lang3.compare.ComparableUtils;
 import org.springframework.lang.NonNull;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import static com.epam.esm.service.util.validator.Messages.ILLEGAL_ARGUMENT;
 import static java.util.Objects.isNull;
@@ -163,6 +168,7 @@ public class ArgumentValidator {
     }
 
     public static class SearchOptionsValidator {
+        private static Predicate<Integer> pageNumPred = ComparableUtils.le(0);
 
         private SearchOptionsValidator() {
         }
@@ -173,9 +179,15 @@ public class ArgumentValidator {
         }
 
         private static void throwFieldInconsistencyRead(@NonNull SearchOptions searchOptions) {
-            if (hasNullFieldRequiredRead(searchOptions)) {
+            if (hasNullFieldRequiredRead(searchOptions)
+                    || hasFieldInconcictency(searchOptions)) {
                 throw new InvalidRequestException(ILLEGAL_ARGUMENT);
             }
+        }
+
+        private static boolean hasFieldInconcictency(SearchOptions searchOptions) {
+            return pageNumPred.test(searchOptions.getPageNumber())
+                    || pageNumPred.test(searchOptions.getPageSize());
         }
 
         private static boolean hasNullFieldRequiredRead(@NonNull SearchOptions searchOptions) {

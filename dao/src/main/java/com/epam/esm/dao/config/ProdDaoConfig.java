@@ -1,32 +1,11 @@
 package com.epam.esm.dao.config;
 
-import com.epam.esm.dao.util.scriptrunner.ScriptRunner;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.context.annotation.*;
-import org.springframework.core.io.ResourceLoader;
-
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
-import java.sql.SQLException;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
 @ComponentScan("com.epam.esm.dao")
 @Profile("prod")
 public class ProdDaoConfig {
-
-    @PostConstruct
-    public void init() throws SQLException {
-        ResourceLoader resourceLoader = new AnnotationConfigApplicationContext(DevDaoConfig.class);
-        HikariConfig hikariConfig = new HikariConfig("/db_scriptrunner.properties");
-        try (HikariDataSource dataSource = new HikariDataSource(hikariConfig);
-             ScriptRunner scriptRunner = new ScriptRunner(dataSource, resourceLoader)) {
-            scriptRunner.run("/prod/scripts/create_database.sql");
-        }
-    }
-
-    @Bean
-    public DataSource dataSource() {
-        return new HikariDataSource(new HikariConfig("/prod/db.properties"));
-    }
 }

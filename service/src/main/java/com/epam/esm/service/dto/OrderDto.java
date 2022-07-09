@@ -14,9 +14,9 @@ public class OrderDto extends RepresentationModel<OrderDto> {
     @Builder.Default
     String timestamp = null;
     @Builder.Default
-    long certificateId = 0;
-    @Builder.Default
     double cost = 0;
+    @Builder.Default
+    long certificateId = 0;
     @Builder.Default
     long userId = 0;
 }

@@ -36,11 +36,12 @@ public class Certificate {
     @Column(name = "create_date", nullable = false)
     LocalDateTime createDate = null;
 
-    @Column(name = "searchable", nullable = false)
-    boolean isSearchable = true;
 
     @Column(name = "last_update_date", nullable = false)
     LocalDateTime lastUpdateDate = null;
+
+    @Column(name = "searchable", nullable = false)
+    boolean isSearchable = true;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinTable(name = "certificate_tag",

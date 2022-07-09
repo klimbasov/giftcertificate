@@ -28,16 +28,21 @@ public interface OrderDao {
     /**
      * Issue an order read operation.
      *
+     * @param limit  - maximum size of spotting list.
+     * @param offset - offset in entities in conforming list.
      * @return list of tags entities, conforming to the options.
      */
-    List<Order> read(int offset, int page);
+    List<Order> read(int offset, int limit);
 
     /**
      * Issue an order read-by-user-id operation.
      *
+     * @param limit  - maximum size of spotting list.
+     * @param offset - offset in entities in conforming list.
+     * @param userId - id of a user, orders mast refers to.
      * @return list of tags entities, conforming to the options.
      */
-    List<Order> read(int offset, int page, long userId);
+    List<Order> read(int offset, int limit, long userId);
 
     /**
      * Issue an order delete operation.
@@ -58,6 +63,7 @@ public interface OrderDao {
     /**
      * Issue an order count-by-user-id operation. Included to maintain pagination mechanic
      *
+     * @param userId - id of a user, orders mast refers to.
      * @return quantity of elements, that corresponds to name
      */
     long count(long userId);

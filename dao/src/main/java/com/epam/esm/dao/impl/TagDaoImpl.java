@@ -13,6 +13,8 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.nonNull;
+
 @Repository
 @Transactional
 public class TagDaoImpl implements TagDao {
@@ -27,8 +29,7 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public Optional<Tag> create(Tag tag) {
-        entityManager.persist(tag);
-        return Optional.of(tag);
+        return createIfDoesNotExist(tag);
     }
 
     @Override
@@ -37,8 +38,8 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public List<Tag> read(String name, int offset, int limit, boolean sortingDirection) {
-        return entityManager.createQuery(Queries.Tag.getSelectQuery(sortingDirection), Tag.class)
+    public List<Tag> read(String name, int offset, int limit, boolean ordering) {
+        return entityManager.createQuery(Queries.Tag.getSelectQuery(ordering), Tag.class)
                 .setParameter(1, name)
                 .setFirstResult(offset)
                 .setMaxResults(limit)
@@ -47,10 +48,14 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public int delete(long id) {
+        int retVal = 0;
         Tag tag = entityManager.find(Tag.class, id);
-        entityManager.remove(tag);
-        removeAssociations(tag);
-        return 1;
+        if (nonNull(tag)) {
+            entityManager.remove(tag);
+            removeAssociations(tag);
+            retVal = 1;
+        }
+        return retVal;
     }
 
     @Override
@@ -58,6 +63,27 @@ public class TagDaoImpl implements TagDao {
         return entityManager.createQuery(Queries.Tag.getCountQuery(), Long.class)
                 .setParameter(1, name)
                 .getSingleResult();
+    }
+
+    @Override
+    public Optional<Tag> readMostUsedTagOfUserWithHighestOrderCost() {
+        return Optional.ofNullable((Tag) entityManager.createNativeQuery(Queries.Tag.getComplexSelectQuery(), Tag.class).getSingleResult());
+    }
+
+    private Optional<Tag> createIfDoesNotExist(Tag tag) {
+        Optional<Tag> optional = Optional.empty();
+        if (doseNotExist(tag)) {
+            entityManager.persist(tag);
+            optional = Optional.of(tag);
+        }
+        return optional;
+    }
+
+    private boolean doseNotExist(Tag tag) {
+        return !entityManager.createQuery(Queries.Tag.getSelectQuery(false))
+                .setParameter(1, tag.getName())
+                .getResultList().stream().findAny()
+                .isPresent();
     }
 
     private void removeAssociations(Tag tag) {

@@ -37,7 +37,15 @@ public class TagController {
         return model;
     }
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/recommended")
+    @ResponseStatus(HttpStatus.OK)
+    public TagDto readMostUsedTagOfUserWithHighestOrderCost() {
+        TagDto model = tagService.readMostUsedTagOfUserWithHighestOrderCost();
+        entityLinkCreator.addLinks(model);
+        return model;
+    }
+
+    @GetMapping(value = "/")
     @ResponseStatus(HttpStatus.OK)
     public PagedModel<TagDto> read(@RequestParam(required = false) String name,
                                    @RequestParam(required = false) String sorting,

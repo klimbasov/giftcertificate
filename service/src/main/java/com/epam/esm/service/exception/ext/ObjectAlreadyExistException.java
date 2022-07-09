@@ -3,22 +3,22 @@ package com.epam.esm.service.exception.ext;
 import com.epam.esm.service.exception.ServiceRuntimeException;
 import org.springframework.http.HttpStatus;
 
-public class ObjectAlreadyExist extends ServiceRuntimeException {
+public class ObjectAlreadyExistException extends ServiceRuntimeException {
     public static final HttpStatus STATUS = HttpStatus.BAD_REQUEST;
 
-    public ObjectAlreadyExist() {
+    public ObjectAlreadyExistException() {
         super(STATUS);
     }
 
-    public ObjectAlreadyExist(String message) {
+    public ObjectAlreadyExistException(String message) {
         super(message, STATUS);
     }
 
-    public ObjectAlreadyExist(Exception exception) {
+    public ObjectAlreadyExistException(Exception exception) {
         super(exception, STATUS);
     }
 
-    public ObjectAlreadyExist(String message, Exception exception) {
+    public ObjectAlreadyExistException(String message, Exception exception) {
         super(message, exception, STATUS);
     }
 }

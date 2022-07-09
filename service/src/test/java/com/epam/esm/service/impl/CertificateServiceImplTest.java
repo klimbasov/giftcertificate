@@ -4,39 +4,35 @@ import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Certificate;
 import com.epam.esm.dao.entity.Tag;
+import com.epam.esm.dao.impl.CertificateDaoImpl;
+import com.epam.esm.dao.impl.TagDaoImpl;
 import com.epam.esm.service.CertificateService;
-import com.epam.esm.service.config.TestServiceConfig;
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.exception.ext.InvalidRequestException;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
+import com.epam.esm.service.util.mapper.impl.CertificateDtoEntityMapper;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.AdditionalMatchers.not;
-import static org.mockito.AdditionalMatchers.or;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.notNull;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestServiceConfig.class)
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CertificateServiceImplTest {
 
-    @Autowired
-    CertificateDao certificateDao;
+    @Mock
+    CertificateDao certificateDao = Mockito.mock(CertificateDaoImpl.class);
 
-    @Autowired
-    TagDao tagDao;
+    @Mock
+    TagDao tagDao = Mockito.mock(TagDaoImpl.class);
 
     CertificateService certificateService;
 
@@ -51,9 +47,9 @@ class CertificateServiceImplTest {
                 .duration(10)
                 .createDate("2021-05-01T12:32:11")
                 .lastUpdateDate("2021-05-01T12:32:11")
-                .tags(Arrays.asList("holo", "lolo"))
+                .tags(Arrays.asList("lolo", "momo"))
                 .build();
-        certificateService = new CertificateServiceImpl(certificateDao, tagDao);
+        certificateService = new CertificateServiceImpl(certificateDao, tagDao, new CertificateDtoEntityMapper());
     }
 
     private void configureCertificateDaoMock() {
@@ -65,6 +61,7 @@ class CertificateServiceImplTest {
                 .duration(10)
                 .createDate(LocalDateTime.parse("2021-05-01T12:32:11"))
                 .lastUpdateDate(LocalDateTime.parse("2021-05-01T12:32:11"))
+                .tags(new HashSet<>())
                 .build();
         Certificate certificate2 = Certificate.builder()
                 .id(2)
@@ -74,6 +71,7 @@ class CertificateServiceImplTest {
                 .duration(10)
                 .createDate(LocalDateTime.parse("2021-05-01T12:32:11"))
                 .lastUpdateDate(LocalDateTime.parse("2021-05-01T12:32:11"))
+                .tags(new HashSet<>())
                 .build();
         Certificate createdCertificate = Certificate.builder()
                 .id(5)
@@ -83,23 +81,25 @@ class CertificateServiceImplTest {
                 .duration(10)
                 .createDate(LocalDateTime.parse("2021-05-01T12:32:11"))
                 .lastUpdateDate(LocalDateTime.parse("2021-05-01T12:32:11"))
+                .tags(new HashSet<>())
                 .build();
         List<Certificate> mockCertificates = Arrays.asList(certificate1, certificate2);
-        Mockito.when(certificateDao.create(notNull(Certificate.class), notNull(Set.class))).thenAnswer(invocation -> {
+        Mockito.when(certificateDao.create(notNull(Certificate.class))).thenAnswer(invocation -> {
             Certificate certificate = invocation.getArgumentAt(0, Certificate.class);
-            Object[] tagSet = invocation.getArgumentAt(1, Set.class).toArray();
+            Object[] tagSet = certificate.getTags().toArray(new Tag[0]);
             Optional<Certificate> optional;
-            if (tagSet.length > 0 && !(tagSet[0] instanceof Integer || Objects.isNull(certificate))) {
+            if (tagSet.length > 0 && !(tagSet[0] instanceof Tag || Objects.isNull(certificate))) {
                 optional = Optional.empty();
             } else {
                 optional = Optional.of(createdCertificate);
             }
             return optional;
         });
-        Mockito.when(certificateDao.read(any(String.class), any(String.class), any(String.class))).thenAnswer(invocation -> {
-            String[] options = new String[]{invocation.getArgumentAt(0, String.class),
-                    invocation.getArgumentAt(1, String.class),
-                    invocation.getArgumentAt(2, String.class)};
+        Mockito.when(certificateDao.read(any(String.class), any(String.class), any(String[].class), any(Integer.class), any(Integer.class), any(Boolean.class))).thenAnswer(invocation -> {
+            String[] options = new String[]{
+                    invocation.getArgumentAt(0, String.class),
+                    invocation.getArgumentAt(1, String.class)
+            };
             for (String str : options) {
                 if (Objects.isNull(str)) {
                     return new LinkedList<>();
@@ -113,11 +113,29 @@ class CertificateServiceImplTest {
             }
             return list;
         });
-        Mockito.when(certificateDao.read(any(Integer.class))).thenAnswer(invocation -> {
-            Integer id = invocation.getArgumentAt(0, Integer.class);
+        Mockito.when(certificateDao.count(any(String.class), any(String.class), any(String[].class))).thenAnswer(invocation -> {
+            String[] options = new String[]{
+                    invocation.getArgumentAt(0, String.class),
+                    invocation.getArgumentAt(1, String.class)
+            };
+            for (String str : options) {
+                if (Objects.isNull(str)) {
+                    return 0;
+                }
+            }
+            List<Certificate> list = new LinkedList<>();
+            for (Certificate cert : mockCertificates) {
+                if (cert.getName().contains(options[0]) && cert.getDescription().contains(options[1])) {
+                    list.add(cert);
+                }
+            }
+            return list.size();
+        });
+        Mockito.when(certificateDao.read(any(Long.class))).thenAnswer(invocation -> {
+            Long id = invocation.getArgumentAt(0, Long.class);
             Certificate certificate = null;
             for (Certificate cert : mockCertificates) {
-                if (cert.getId().equals(id)) {
+                if (id.equals(cert.getId())) {
                     certificate = cert;
                 }
             }
@@ -125,22 +143,23 @@ class CertificateServiceImplTest {
         });
 
 
-        Mockito.doReturn(1).when(certificateDao).delete(or(eq(1), eq(2)));
-        Mockito.doReturn(0).when(certificateDao).delete(not(or(eq(1), eq(2))));
-        Mockito.doNothing().when(certificateDao).update(any(Certificate.class), any(Set.class));
+        Mockito.doReturn(1).when(certificateDao).delete(1);
     }
 
     private void configureTagDaoMock() {
-        Tag tag1 = Tag.builder().id(1).name("name1").build();
-        Tag tag3 = Tag.builder().id(3).name("name3").build();
-        Tag tag4 = Tag.builder().id(4).name("name4").build();
-        Tag createdTag = Tag.builder().id(5).name("new name").build();
-        Mockito.when(tagDao.read(1)).thenReturn(Optional.ofNullable(tag1));
-        Mockito.when(tagDao.read(tag1.getName())).thenReturn(Arrays.asList(tag1));
+        Tag tag1 = new Tag(1, "name1", null);
+        Tag tag3 = new Tag(3, "name3", null);
+        Tag tag4 = new Tag(4, "name4", null);
+        Tag createdTag = new Tag(5, "new name", null);
+        Mockito.when(tagDao.read(tag1.getName(), 0, 20, true)).thenReturn(Arrays.asList(tag1));
         Mockito.when(tagDao.read(1)).thenReturn(Optional.of(tag1));
-        Mockito.when(tagDao.read("name")).thenReturn(Arrays.asList(tag1, tag3, tag4));
+        Mockito.when(tagDao.read("name", 0, 20, true)).thenReturn(Arrays.asList(tag1, tag3, tag4));
         Mockito.when(tagDao.create(any(Tag.class))).thenReturn(Optional.of(createdTag));
-        Mockito.when(tagDao.readByCertificateId(1)).thenReturn(new HashSet<>(Arrays.asList(tag1, tag4)));
+        Mockito.when(tagDao.readMostUsedTagOfUserWithHighestOrderCost()).thenReturn(Optional.of(tag1));
+        Mockito.when(tagDao.count("mane")).thenReturn((long) Arrays.asList(tag1, tag3, tag4).size());
+        Mockito.when(tagDao.count(tag1.getName())).thenReturn(1L);
+        Mockito.when(tagDao.delete(4)).thenReturn(0);
+        Mockito.when(tagDao.delete(1)).thenReturn(1);
     }
 
     @Nested
@@ -152,9 +171,9 @@ class CertificateServiceImplTest {
         @Test
         @DisplayName("Normal behavior with consistent input")
         void addConsistent() {
-            Integer actual;
+            Long actual;
 
-            actual = assertDoesNotThrow(() -> certificateService.add(sample).getId());
+            actual = assertDoesNotThrow(() -> certificateService.create(sample).getId());
 
             assertTrue(actual > 0);
         }
@@ -162,13 +181,13 @@ class CertificateServiceImplTest {
         @Test
         @DisplayName("Null parameter passing")
         void addNull() {
-            assertThrows(InvalidRequestException.class, () -> certificateService.add(null));
+            assertThrows(InvalidRequestException.class, () -> certificateService.create(null));
         }
 
         @Test
         @DisplayName("Inconsistent parameter passing")
         void addInconsistent() {
-            assertThrows(InvalidRequestException.class, () -> certificateService.add(inconsistentDto));
+            assertThrows(InvalidRequestException.class, () -> certificateService.create(inconsistentDto));
         }
 
     }
@@ -181,21 +200,21 @@ class CertificateServiceImplTest {
         @DisplayName("Normal behavior with consistent input")
         void putConsistent() {
             CertificateDto consistentDto = sample.toBuilder().id(2).build();
-            assertDoesNotThrow(() -> certificateService.put(consistentDto));
+            assertDoesNotThrow(() -> certificateService.update(consistentDto));
         }
 
         @Test
         @DisplayName("Null parameter passing")
         void putInconsistent() {
             CertificateDto inconsistentDto = sample;
-            assertThrows(InvalidRequestException.class, () -> certificateService.put(inconsistentDto));
+            assertThrows(InvalidRequestException.class, () -> certificateService.update(inconsistentDto));
         }
 
         @Test
         @DisplayName("Inconsistent parameter passing")
         void putDoesNotExisting() {
             CertificateDto doesNotExistDto = sample.toBuilder().id(3).build();
-            assertThrows(NoSuchObjectException.class, () -> certificateService.put(doesNotExistDto));
+            assertThrows(NoSuchObjectException.class, () -> certificateService.update(doesNotExistDto));
         }
 
     }
@@ -203,27 +222,27 @@ class CertificateServiceImplTest {
     @Nested
     @DisplayName("Tests for method read by id")
     class ReadByIdTest {
-        private final int existingId = 1;
-        private final int nonexistentId = 4;
-        private final int inconsistentId = -1;
+        private final long existingId = 1;
+        private final long nonexistentId = 4;
+        private final long inconsistentId = -1;
 
 
         @Test
         @DisplayName("Existent id value passing")
         void readExisting() {
-            assertDoesNotThrow(() -> certificateService.get(existingId));
+            assertDoesNotThrow(() -> certificateService.read(existingId));
         }
 
         @Test
         @DisplayName("Negative id value passing")
         void readInconsistent() {
-            assertThrows(InvalidRequestException.class, () -> certificateService.get(inconsistentId));
+            assertThrows(InvalidRequestException.class, () -> certificateService.read(inconsistentId));
         }
 
         @Test
         @DisplayName("Nonexistent id value passing")
         void readDoesNonexistent() {
-            assertThrows(NoSuchObjectException.class, () -> certificateService.get(nonexistentId));
+            assertThrows(NoSuchObjectException.class, () -> certificateService.read(nonexistentId));
         }
     }
 
@@ -250,35 +269,34 @@ class CertificateServiceImplTest {
         @Test
         @DisplayName("Options for existing record passing")
         void readExisting() {
-            assertDoesNotThrow(() -> certificateService.get(optionsForExistent));
+            assertDoesNotThrow(() -> certificateService.read(optionsForExistent, new String[0]));
         }
 
         @Test
         @DisplayName("Inconsistent options passing")
         void readInconsistent() {
-            assertDoesNotThrow(() -> certificateService.get(inconsistentOptions));
+            assertDoesNotThrow(() -> certificateService.read(inconsistentOptions, new String[0]));
         }
 
         @Test
         @DisplayName("Null passing")
         void readNull() {
-            assertThrows(InvalidRequestException.class, () -> certificateService.get((SearchOptions) null));
+            assertThrows(InvalidRequestException.class, () -> certificateService.read(null, new String[0]));
         }
 
         @Test
         @DisplayName("Options for nonexistent record passing")
         void readNonexistent() {
-            List<CertificateDto> actual = assertDoesNotThrow(() -> certificateService.get(optionsForNonexistent));
-            assertTrue(actual.isEmpty());
+            assertThrows(NoSuchObjectException.class, () -> certificateService.read(optionsForNonexistent, new String[0]));
         }
     }
 
     @Nested
     @DisplayName("Tests for method delete")
     class DeleteTest {
-        private final int existingId = 1;
-        private final int nonexistentId = 4;
-        private final int inconsistentId = -1;
+        private final long existingId = 1;
+        private final long nonexistentId = 4;
+        private final long inconsistentId = -1;
 
 
         @Test

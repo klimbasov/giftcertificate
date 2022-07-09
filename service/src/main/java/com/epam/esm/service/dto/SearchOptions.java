@@ -18,9 +18,9 @@ public class SearchOptions extends RepresentationModel<SearchOptions> {
     @Builder.Default
     String subdescription = "";
     @Builder.Default
-    Integer pageNumber = 1;
+    int pageNumber = 1;
     @Builder.Default
-    Integer pageSize = 20;
+    int pageSize = 20;
 
 
     public String getSorting() {
@@ -33,10 +33,6 @@ public class SearchOptions extends RepresentationModel<SearchOptions> {
 
     public String getSubdescription() {
         return isNull(subdescription) ? "" : subdescription;
-    }
-
-    public Integer getPageNumber() {
-        return isNull(pageNumber) || (pageNumber <= 0) ? 1 : pageNumber;
     }
 
     public Integer getPageSize() {

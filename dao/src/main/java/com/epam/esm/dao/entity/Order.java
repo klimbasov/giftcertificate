@@ -1,12 +1,10 @@
 package com.epam.esm.dao.entity;
 
 import lombok.*;
-import org.springframework.boot.actuate.audit.listener.AuditListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@EntityListeners(AuditListener.class)
 @Entity
 @Table(name = "orders")
 @Data
@@ -17,9 +15,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Order {
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user", nullable = false)
-    User user;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
@@ -32,9 +27,7 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "certificate_id", nullable = false)
     private Certificate certificate;
-
-    @PrePersist
-    private void onPrePersist() {
-        timestamp = LocalDateTime.now();
-    }
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user", nullable = false)
+    User user;
 }

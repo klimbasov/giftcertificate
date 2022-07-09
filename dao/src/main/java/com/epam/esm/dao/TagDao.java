@@ -14,7 +14,7 @@ public interface TagDao {
      * Issue a tag create operation.
      *
      * @param tag - tag entity to be added.
-     * @return - tag entity. Tag id is provided.
+     * @return - optional tag entity. Tag id is provided.
      */
     Optional<Tag> create(Tag tag);
 
@@ -29,10 +29,13 @@ public interface TagDao {
     /**
      * Issue a tag read-bu-name operation.
      *
-     * @param name - partial name of the search tags.
+     * @param limit    - maximum size of spotting list.
+     * @param offset   - offset in entities in conforming list.
+     * @param name     - partial name of the search entities.
+     * @param ordering - if true, ordering is direct. Otherwise, ordering is inverted.
      * @return list of tags entities, conforming to the options.
      */
-    List<Tag> read(String name, int offset, int limit, boolean sortingDirection);
+    List<Tag> read(String name, int offset, int limit, boolean ordering);
 
     /**
      * Issue a tag delete operation.
@@ -50,4 +53,11 @@ public interface TagDao {
      * @return quantity of elements, that corresponds to name
      */
     long count(String name);
+
+    /**
+     * Issue a tag read-most-used-of-user-with-Highest-cost operation.
+     *
+     * @return optional tag entity.
+     */
+    Optional<Tag> readMostUsedTagOfUserWithHighestOrderCost();
 }
