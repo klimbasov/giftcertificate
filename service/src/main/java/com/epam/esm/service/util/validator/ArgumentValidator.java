@@ -168,7 +168,7 @@ public class ArgumentValidator {
     }
 
     public static class SearchOptionsValidator {
-        private static Predicate<Integer> pageNumPred = ComparableUtils.le(0);
+        private static final Predicate<Integer> pageNumPred = ComparableUtils.le(0);
 
         private SearchOptionsValidator() {
         }

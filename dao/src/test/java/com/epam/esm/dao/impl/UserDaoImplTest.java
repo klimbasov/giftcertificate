@@ -30,13 +30,12 @@ class UserDaoImplTest {
     private UserDao userDao;
 
     @PersistenceContext
-    @Autowired
     private EntityManager entityManager;
 
     @Nested
     class ReadById {
         private final long nonexistentId = 10000;
-        private User expected = new User(0, "name", new HashSet<>());
+        private final User expected = new User(0, "name", new HashSet<>());
 
         @Test
         void readExistent() {
@@ -55,7 +54,7 @@ class UserDaoImplTest {
 
     @Nested
     class ReadAndCountByName {
-        private List<User> expected = Arrays.asList(
+        private final List<User> expected = Arrays.asList(
                 new User(0, "name1", new HashSet<>()),
                 new User(0, "name2", new HashSet<>()),
                 new User(0, "name3", new HashSet<>())

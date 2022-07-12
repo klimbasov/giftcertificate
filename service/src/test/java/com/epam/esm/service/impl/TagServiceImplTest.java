@@ -15,8 +15,10 @@ import org.mockito.Mockito;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.any;
 
@@ -44,8 +46,8 @@ class TagServiceImplTest {
         Tag createdTag = new Tag(5, "new name", null);
         sample = new TagDto(0, createdTag.getName());
 
-        Mockito.when(tagDao.read(1)).thenReturn(Optional.ofNullable(tag1));
-        Mockito.when(tagDao.read(tag1.getName(), 0, 20, true)).thenReturn(Arrays.asList(tag1));
+        Mockito.when(tagDao.read(1)).thenReturn(Optional.of(tag1));
+        Mockito.when(tagDao.read(tag1.getName(), 0, 20, true)).thenReturn(singletonList(tag1));
         Mockito.when(tagDao.read(1)).thenReturn(Optional.of(tag1));
         Mockito.when(tagDao.read("name", 0, 20, true)).thenReturn(Arrays.asList(tag1, tag3, tag4));
         Mockito.when(tagDao.create(any(Tag.class))).thenReturn(Optional.of(createdTag));
@@ -79,11 +81,10 @@ class TagServiceImplTest {
 
     @Test
     void getByExistingId() {
-        long spottedId = 1;
-        long expected = spottedId;
+        long expected = 1;
         long actual;
 
-        actual = assertDoesNotThrow(() -> tagService.read(spottedId)).getId();
+        actual = assertDoesNotThrow(() -> tagService.read(expected)).getId();
         assertEquals(expected, actual);
     }
 }

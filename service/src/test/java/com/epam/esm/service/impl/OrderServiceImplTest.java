@@ -37,8 +37,6 @@ class OrderServiceImplTest {
 
     OrderServiceImpl orderService;
 
-    OrderDto sample;
-
     @BeforeAll
     void setUp() {
         orderService = new OrderServiceImpl(orderDao, mapper);
@@ -151,10 +149,10 @@ class OrderServiceImplTest {
     @Nested
     @DisplayName("Testing read-by-option-and-user-id")
     class ReadByOptionAndUserId {
-        private SearchOptions consistentOptions = SearchOptions.builder().pageNumber(1).build();
-        private SearchOptions inconsistentOptions = SearchOptions.builder().pageNumber(-5).build();
-        private long consistentId = 1;
-        private long inconsistentId = 0;
+        private final SearchOptions consistentOptions = SearchOptions.builder().pageNumber(1).build();
+        private final SearchOptions inconsistentOptions = SearchOptions.builder().pageNumber(-5).build();
+        private final long consistentId = 1;
+        private final long inconsistentId = 0;
 
         @Test
         void readByConsistentParams() {
@@ -198,7 +196,7 @@ class OrderServiceImplTest {
 
         @Test
         void deleteByNullId() {
-            assertThrows(InvalidRequestException.class, () -> orderService.delete((Long) null));
+            assertThrows(InvalidRequestException.class, () -> orderService.delete( null));
         }
     }
 }

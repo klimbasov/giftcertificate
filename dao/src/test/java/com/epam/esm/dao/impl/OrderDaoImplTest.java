@@ -33,21 +33,20 @@ class OrderDaoImplTest {
     @Autowired
     private OrderDao orderDao;
 
-    private LocalDateTime time = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-    private Certificate certificateTemplate = Certificate.builder()
+    private final LocalDateTime time = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+    private final Certificate certificateTemplate = Certificate.builder()
             .id(0)
             .createDate(time)
             .lastUpdateDate(time)
             .description("descr")
             .duration(10)
             .isSearchable(true).build();
-    private Order orderTemplate = Order.builder()
+    private final Order orderTemplate = Order.builder()
             .id(0)
             .cost(10.01)
             .timestamp(time).build();
 
     @PersistenceContext
-    @Autowired
     private EntityManager entityManager;
 
     @Nested

@@ -35,9 +35,7 @@ public final class Queries {
         }
 
         public static String getSelectByNameQuery() {
-            StringBuilder builder = new StringBuilder();
-            builder.append(SELECT).append(SELECT_ENTITIES).append(FROM).append(WHERE);
-            return builder.toString();
+            return SELECT + SELECT_ENTITIES + FROM + WHERE;
         }
 
         public static String getCountQuery(boolean buildWithTags) {
@@ -137,21 +135,26 @@ public final class Queries {
     }
 
     public static final class Order {
+        //queries components
+        private static final String ORDER_BY = "order by o.timestamp";
+        private static final String FROM = "from Order o ";
+        private static final String JOIN_WHERE_BY_USER_D = "join o.user u " +
+                "where u.id = ?1 ";
+
+        //queries
         private static final String SELECT = "select o " +
-                "from Order o " +
-                "order by o.timestamp";
+                FROM +
+                ORDER_BY;
         private static final String COUNT = "select count(o) " +
-                "from Order o";
+                FROM;
         private static final String SELECT_BY_USER_ID = "select o " +
-                "from Order o " +
-                "join o.user u " +
-                "where u.id = ?1 " +
-                "order by o.timestamp";
+                FROM +
+                JOIN_WHERE_BY_USER_D +
+                ORDER_BY;
         private static final String COUNT_BY_USER_ID = "select count(o) " +
-                "from Order o " +
-                "join o.user u " +
-                "where u.id = ?1 " +
-                "order by o.timestamp";
+                FROM +
+                JOIN_WHERE_BY_USER_D +
+                ORDER_BY;
 
         private Order() {
         }

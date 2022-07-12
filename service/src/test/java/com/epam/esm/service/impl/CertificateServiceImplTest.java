@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.notNull;
@@ -88,7 +89,7 @@ class CertificateServiceImplTest {
             Certificate certificate = invocation.getArgumentAt(0, Certificate.class);
             Object[] tagSet = certificate.getTags().toArray(new Tag[0]);
             Optional<Certificate> optional;
-            if (tagSet.length > 0 && !(tagSet[0] instanceof Tag || Objects.isNull(certificate))) {
+            if (tagSet.length > 0 && !(tagSet[0] instanceof Tag)) {
                 optional = Optional.empty();
             } else {
                 optional = Optional.of(createdCertificate);
@@ -151,7 +152,7 @@ class CertificateServiceImplTest {
         Tag tag3 = new Tag(3, "name3", null);
         Tag tag4 = new Tag(4, "name4", null);
         Tag createdTag = new Tag(5, "new name", null);
-        Mockito.when(tagDao.read(tag1.getName(), 0, 20, true)).thenReturn(Arrays.asList(tag1));
+        Mockito.when(tagDao.read(tag1.getName(), 0, 20, true)).thenReturn(singletonList(tag1));
         Mockito.when(tagDao.read(1)).thenReturn(Optional.of(tag1));
         Mockito.when(tagDao.read("name", 0, 20, true)).thenReturn(Arrays.asList(tag1, tag3, tag4));
         Mockito.when(tagDao.create(any(Tag.class))).thenReturn(Optional.of(createdTag));
