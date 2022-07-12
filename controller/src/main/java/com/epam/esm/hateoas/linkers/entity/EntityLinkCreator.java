@@ -1,4 +1,4 @@
-package com.epam.esm.hateoas;
+package com.epam.esm.hateoas.linkers.entity;
 
 import org.springframework.hateoas.RepresentationModel;
 

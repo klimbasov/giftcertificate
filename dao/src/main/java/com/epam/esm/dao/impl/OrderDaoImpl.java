@@ -2,7 +2,9 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.constant.Queries;
+import com.epam.esm.dao.entity.Certificate;
 import com.epam.esm.dao.entity.Order;
+import com.epam.esm.dao.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +12,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.util.Objects.nonNull;
 
@@ -28,8 +32,19 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public Optional<Order> create(Order order) {
-        manager.persist(order);
-        return Optional.of(order);
+        Optional<Order> optional = Optional.empty();
+        if(relatedUserAndCertificateExist(order)){
+            manager.persist(order);
+            optional = Optional.of(order);
+        }
+        return optional;
+    }
+
+    private boolean relatedUserAndCertificateExist(Order order) {
+        return Stream.of(
+                manager.find(Certificate.class, order.getId()),
+                manager.find(User.class, order.getId())
+        ).noneMatch(Objects::isNull);
     }
 
     @Override

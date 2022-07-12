@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.hateoas.EntityLinkCreator;
-import com.epam.esm.hateoas.PageLinkCreator;
+import com.epam.esm.hateoas.linkers.entity.EntityLinkCreator;
+import com.epam.esm.hateoas.linkers.page.PageLinkCreator;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.SearchOptions;
@@ -39,7 +39,7 @@ public class OrderController {
 
     @GetMapping("order")
     @ResponseStatus(HttpStatus.OK)
-    public PagedModel<OrderDto> read(@RequestParam(required = false) Integer page) {
+    public PagedModel<OrderDto> read(@RequestParam(required = false, defaultValue = "1") int page) {
         SearchOptions options = SearchOptions.builder()
                 .pageNumber(page)
                 .build();

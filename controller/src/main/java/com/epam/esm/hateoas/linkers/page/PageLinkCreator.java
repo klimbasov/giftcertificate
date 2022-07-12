@@ -1,4 +1,4 @@
-package com.epam.esm.hateoas;
+package com.epam.esm.hateoas.linkers.page;
 
 import org.springframework.hateoas.PagedModel;
 

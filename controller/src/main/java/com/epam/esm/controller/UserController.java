@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.hateoas.EntityLinkCreator;
-import com.epam.esm.hateoas.PageLinkCreator;
+import com.epam.esm.hateoas.linkers.entity.EntityLinkCreator;
+import com.epam.esm.hateoas.linkers.page.PageLinkCreator;
 import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.dto.UserDto;
@@ -32,7 +32,7 @@ public class UserController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PagedModel<UserDto> read(@RequestParam(required = false) String name,
-                                    @RequestParam(required = false) Integer page) {
+                                    @RequestParam(required = false, defaultValue = "1") int page) {
         SearchOptions options = SearchOptions.builder()
                 .subname(name)
                 .pageNumber(page)

@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.hateoas.EntityLinkCreator;
-import com.epam.esm.hateoas.PageLinkCreator;
+import com.epam.esm.hateoas.linkers.entity.EntityLinkCreator;
+import com.epam.esm.hateoas.linkers.page.PageLinkCreator;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.dto.CertificateDto;
 import com.epam.esm.service.dto.SearchOptions;

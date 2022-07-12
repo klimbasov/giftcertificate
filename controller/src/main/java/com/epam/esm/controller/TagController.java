@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.hateoas.EntityLinkCreator;
-import com.epam.esm.hateoas.PageLinkCreator;
+import com.epam.esm.hateoas.linkers.entity.EntityLinkCreator;
+import com.epam.esm.hateoas.linkers.page.PageLinkCreator;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.dto.TagDto;
@@ -49,7 +49,7 @@ public class TagController {
     @ResponseStatus(HttpStatus.OK)
     public PagedModel<TagDto> read(@RequestParam(required = false) String name,
                                    @RequestParam(required = false) String sorting,
-                                   @RequestParam(required = false) Integer page) {
+                                   @RequestParam(required = false, defaultValue = "1") int page) {
         SearchOptions options = SearchOptions.builder()
                 .sorting(sorting)
                 .subname(name)

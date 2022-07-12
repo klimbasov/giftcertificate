@@ -36,30 +36,15 @@ import static java.util.Objects.nonNull;
 @Service
 public class CertificateServiceImpl implements CertificateService {
 
-    private final CertificateDao certificateDao;
+    private final CertificateDao dao;
     private final TagDao tagDao;
     private final Mapper<Certificate, CertificateDto> mapper;
 
     @Autowired
     public CertificateServiceImpl(CertificateDao certificateDao, TagDao tagDao, Mapper<Certificate, CertificateDto> mapper) {
-        this.certificateDao = certificateDao;
+        this.dao = certificateDao;
         this.tagDao = tagDao;
         this.mapper = mapper;
-    }
-
-    public static void mapToEntity(CertificateDto certificateDto, Certificate certificate) {
-        if (nonNull(certificateDto.getName())) {
-            certificate.setName(certificateDto.getName());
-        }
-        if (nonNull(certificateDto.getDescription())) {
-            certificate.setDescription(certificateDto.getDescription());
-        }
-        if (certificateDto.getDuration() != 0) {
-            certificate.setDuration(certificateDto.getDuration());
-        }
-        if (certificateDto.getPrice() != 0) {
-            certificate.setPrice(certificateDto.getPrice());
-        }
     }
 
     @Override
@@ -69,7 +54,7 @@ public class CertificateServiceImpl implements CertificateService {
         Certificate certificate = mapper.mapToEntity(certificateDto);
         Set<Tag> tags = syncTags(certificateDto);
         certificate.setTags(tags);
-        Certificate createdCertificate = certificateDao.create(certificate)
+        Certificate createdCertificate = dao.create(certificate)
                 .orElseThrow(() -> new ObjectAlreadyExistException(OBJECT_ALREADY_EXISTS));
         return mapper.mapToModel(createdCertificate);
     }
@@ -78,12 +63,12 @@ public class CertificateServiceImpl implements CertificateService {
     public CertificateDto update(CertificateDto certificateDto) {
         validateUpdatePreMap(certificateDto);
 
-        Certificate certificate = certificateDao.read(certificateDto.getId())
+        Certificate certificate = dao.read(certificateDto.getId())
                 .orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
         Set<Tag> tags = syncTags(certificateDto, certificate);
         certificate.setTags(tags);
         mapToEntity(certificateDto, certificate);
-        certificateDao.update(certificate);
+        dao.update(certificate);
         return mapper.mapToModel(certificate);
     }
 
@@ -91,16 +76,14 @@ public class CertificateServiceImpl implements CertificateService {
     public CertificateDto read(Long id) {
         validateRead(id);
 
-        Certificate certificate = certificateDao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
+        Certificate certificate = dao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
         return mapper.mapToModel(certificate);
     }
 
     @Override
     public void delete(Long id) {
         validateDelete(id);
-        if (certificateDao.delete(id) == 0) {
-            throw new NoSuchObjectException(NO_SUCH_OBJECT);
-        }
+        throwIfNoEffect(dao.delete(id));
     }
 
     @Override
@@ -113,10 +96,25 @@ public class CertificateServiceImpl implements CertificateService {
         String name = options.getSubname();
         String description = options.getSubdescription();
 
-        long totalElements = certificateDao.count(name, description, tags);
+        long totalElements = dao.count(name, description, tags);
         validate(totalElements, pageSize, pageNumber);
-        List<Certificate> certificateList = certificateDao.read(name, description, tags, offset, options.getPageSize(), isSortingInverted(options));
+        List<Certificate> certificateList = dao.read(name, description, tags, offset, options.getPageSize(), isSortingInverted(options));
         return toPage(mapper.mapToModels(certificateList), pageNumber, pageSize, totalElements);
+    }
+
+    public void mapToEntity(CertificateDto certificateDto, Certificate certificate) {
+        if (nonNull(certificateDto.getName())) {
+            certificate.setName(certificateDto.getName());
+        }
+        if (nonNull(certificateDto.getDescription())) {
+            certificate.setDescription(certificateDto.getDescription());
+        }
+        if (certificateDto.getDuration() != 0) {
+            certificate.setDuration(certificateDto.getDuration());
+        }
+        if (certificateDto.getPrice() != 0) {
+            certificate.setPrice(certificateDto.getPrice());
+        }
     }
 
     private boolean isSortingInverted(SearchOptions searchOptions) {
@@ -141,5 +139,11 @@ public class CertificateServiceImpl implements CertificateService {
                 .findAny()
                 .orElseGet(() -> tagDao.create(new Tag(name))
                         .orElseThrow(() -> new ObjectAlreadyExistException(OBJECT_ALREADY_EXISTS)));
+    }
+
+    private void throwIfNoEffect(int modifiedLines) {
+        if (modifiedLines == 0) {
+            throw new NoSuchObjectException(NO_SUCH_OBJECT);
+        }
     }
 }
