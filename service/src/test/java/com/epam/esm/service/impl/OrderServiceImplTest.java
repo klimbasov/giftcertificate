@@ -175,7 +175,7 @@ class OrderServiceImplTest {
     @Nested
     @DisplayName("Testing deleting-by-id")
     class DeleteById {
-        long existentId = 2;
+        long existentId = 1;
         long nonexistentId = 100;
         long inconsistentId = 0;
 
@@ -191,7 +191,7 @@ class OrderServiceImplTest {
 
         @Test
         void deleteByNonexistentId() {
-            assertDoesNotThrow(() -> orderService.delete(nonexistentId));
+            assertThrows(NoSuchObjectException.class, () -> orderService.delete(nonexistentId));
         }
 
         @Test

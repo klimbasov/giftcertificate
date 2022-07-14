@@ -9,36 +9,16 @@ repositories {
     mavenCentral()
 }
 
-def SpringVersion = '5.3.18'
-def JupiterVersion = '5.8.2'
-
 dependencies {
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: JupiterVersion
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: JupiterVersion
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '4.0.3'
-
-
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    implementation 'mysql:mysql-connector-java:8.0.23'
-    implementation group: 'org.springframework', name: 'spring-jdbc', version: SpringVersion
-    implementation group: 'org.springframework', name: 'spring-core', version: SpringVersion
-    implementation group: 'org.springframework', name: 'spring-beans', version: SpringVersion
-    implementation group: 'org.springframework', name: 'spring-context', version: SpringVersion
-    testImplementation group: 'org.springframework', name: 'spring-test', version: SpringVersion
-    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
-    implementation group: 'org.springframework.data', name: 'spring-data-jpa', version: '2.7.0'
-    // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
-    implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.6.9.Final'
-    compileOnly group: 'org.hibernate', name: 'hibernate-jpamodelgen', version: '5.6.9.Final'
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.7.0'
-
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '2.7.0'
-
-
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
 
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
 
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.7.0'
+    implementation 'mysql:mysql-connector-java:8.0.23'
+
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.7.0'
 }
 
 test {

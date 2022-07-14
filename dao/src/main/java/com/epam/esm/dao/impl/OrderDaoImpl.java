@@ -42,8 +42,8 @@ public class OrderDaoImpl implements OrderDao {
 
     private boolean relatedUserAndCertificateExist(Order order) {
         return Stream.of(
-                manager.find(Certificate.class, order.getId()),
-                manager.find(User.class, order.getId())
+                manager.find(Certificate.class, order.getCertificate().getId()),
+                manager.find(User.class, order.getUser().getId())
         ).noneMatch(Objects::isNull);
     }
 

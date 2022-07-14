@@ -5,33 +5,20 @@ plugins {
 group 'com.epam.esm'
 version '1.0-SNAPSHOT'
 
-def SpringVersion = '5.3.18'
-def JupiterVersion = '5.8.2'
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: JupiterVersion
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: JupiterVersion
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: JupiterVersion
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    implementation group: 'org.springframework', name: 'spring-core', version: SpringVersion
-    implementation group: 'org.springframework', name: 'spring-beans', version: SpringVersion
-    implementation group: 'org.springframework', name: 'spring-context', version: SpringVersion
-    testImplementation group: 'org.springframework', name: 'spring-test', version: SpringVersion
-    implementation group: 'org.springframework', name: 'spring-web', version: SpringVersion
-    testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-hateoas', version: '2.7.0'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
+
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.7.0'
+    testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-
-
-    // https://mvnrepository.com/artifact/com.opencsv/opencsv
 
     implementation project(":dao")
 }
