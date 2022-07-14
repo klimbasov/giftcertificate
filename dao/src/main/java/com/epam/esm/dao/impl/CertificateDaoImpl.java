@@ -2,84 +2,92 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.constant.Queries;
-import com.epam.esm.dao.constant.TableNames;
 import com.epam.esm.dao.entity.Certificate;
-import com.epam.esm.dao.mappers.CertificateRowMapper;
-import com.epam.esm.dao.parametersources.CertificateParameterSource;
-import com.epam.esm.dao.seters.CertificateTagButchInsertPreparedStatementSetter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.util.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
-import static java.util.Objects.nonNull;
+import static com.epam.esm.dao.constant.Queries.Certificate.getCountQuery;
+import static com.epam.esm.dao.constant.Queries.Certificate.getSelectSearchableQuery;
 
-@Component
+@Repository
+@Transactional
 public class CertificateDaoImpl implements CertificateDao {
 
-    JdbcTemplate template;
+    @PersistenceContext
+    private final EntityManager manager;
 
     @Autowired
-    public CertificateDaoImpl(DataSource dataSource){
-        this.template = new JdbcTemplate(dataSource);
+    public CertificateDaoImpl(EntityManager entityManager) {
+        this.manager = entityManager;
     }
 
     @Override
-    public Certificate create(Certificate certificate, Set<Integer> tagIds) {
-        SimpleJdbcInsert certificateInsert = new SimpleJdbcInsert(template);
-        certificateInsert.withTableName(TableNames.Certificate.TABLE_NAME)
-                .usingGeneratedKeyColumns(TableNames.Certificate.ID)
-                .usingColumns(TableNames.Certificate.NAME,
-                        TableNames.Certificate.DESCRIPTION,
-                        TableNames.Certificate.PRICE,
-                        TableNames.Certificate.CREATE_DATE,
-                        TableNames.Certificate.LAST_UPDATE_DATE,
-                        TableNames.Certificate.DURATION);
-        Number id = certificateInsert.executeAndReturnKey(new CertificateParameterSource(certificate));
-        addCertificateTags(certificate.getId(), tagIds);
-        return certificate.toBuilder().id(id.intValue()).build();
+    public Optional<Certificate> create(Certificate certificate) {
+        Optional<Certificate> optional = Optional.empty();
+        optional = createIfDoseNotExist(certificate, optional);
+        return optional;
     }
 
     @Override
-    public Optional<Certificate> read(int id) {
-        Optional<Certificate> optionalEntity;
-        optionalEntity = Optional.ofNullable(template.queryForObject(Queries.Certificate.SELECT_BY_ID, new CertificateRowMapper(), id));
-        return optionalEntity;
+    public Optional<Certificate> read(long id) {
+        return Optional.ofNullable(manager.find(Certificate.class, id));
     }
 
     @Override
-    public Optional<List<Certificate>> read(String name, String desc, String tag) {
-        List<Certificate> entityList = template.query(Queries.Certificate.SELECT, new CertificateRowMapper(), name, desc, tag);
-        return Optional.of(entityList);
+    public List<Certificate> read(String name, String desc, String[] tag, int offset, int limit, boolean ordering) {
+        TypedQuery<Certificate> query = manager.createQuery(getSelectSearchableQuery((tag.length > 0), ordering), Certificate.class);
+        setQueryParameters(name, desc, tag, query);
+        return query.setFirstResult(offset).setMaxResults(limit).getResultList();
     }
 
     @Override
-    public void delete(int id) {
-        template.update(Queries.Certificate.DELETE, id);
+    public long count(String name, String desc, String[] tag) {
+        TypedQuery<Long> query = manager.createQuery(getCountQuery((tag.length > 0)), Long.class);
+        setQueryParameters(name, desc, tag, query);
+        return query.getSingleResult();
     }
 
     @Override
-    public void update(Certificate certificate, Set<Integer> tagIds) {
-        template.update(Queries.Certificate.UPDATE,
-                certificate.getName(),
-                certificate.getDescription(),
-                certificate.getPrice(),
-                certificate.getCreateDate(),
-                certificate.getLastUpdateDate(),
-                certificate.getDuration(),
-                certificate.getId());
-
-        template.update(Queries.CertificateTag.DELETE, certificate.getId());
-
-        addCertificateTags(certificate.getId(), tagIds);
+    public int delete(long id) {
+        return manager.createQuery(Queries.Certificate.getDeleteQuery())
+                .setParameter(1, id)
+                .executeUpdate();
     }
 
-    private void addCertificateTags(int id, Set<Integer> tagIds) {
-        if(!tagIds.isEmpty() && nonNull(tagIds)){
-            template.batchUpdate(Queries.CertificateTag.INSERT, new CertificateTagButchInsertPreparedStatementSetter(id, tagIds));
+    @Override
+    public void update(Certificate certificate) {
+        manager.merge(certificate);
+    }
+
+    private Optional<Certificate> createIfDoseNotExist(Certificate certificate, Optional<Certificate> optional) {
+        if (doseNotExist(certificate)) {
+            optional = Optional.of(certificate);
+            manager.persist(certificate);
+        }
+        return optional;
+    }
+
+    private boolean doseNotExist(Certificate certificate) {
+        return !manager.createQuery(Queries.Certificate.getSelectByNameQuery(), Certificate.class)
+                .setParameter(1, certificate.getName())
+                .getResultList().stream().findAny().isPresent();
+    }
+
+    private void setQueryParameters(String name, String desc, String[] tag, Query query) {
+        query.setParameter(1, name);
+        query.setParameter(2, desc);
+        if (tag.length > 0) {
+            query.setParameter(3, Arrays.asList(tag));
+            query.setParameter(4, tag.length);
         }
     }
 }

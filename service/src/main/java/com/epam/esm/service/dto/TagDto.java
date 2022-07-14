@@ -1,14 +1,16 @@
 package com.epam.esm.service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
-@Value
+@Data
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
-public class TagDto {
-    @NonNull
-    Integer id;
-    @NonNull
-    String name;
+@Builder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class TagDto extends RepresentationModel<TagDto> {
+    @Builder.Default
+    long id = 0;
+    @Builder.Default
+    String name = null;
 }

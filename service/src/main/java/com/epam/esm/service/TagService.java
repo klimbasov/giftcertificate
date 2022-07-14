@@ -1,17 +1,56 @@
 package com.epam.esm.service;
 
+import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.exception.ext.InvalidRequestException;
+import com.epam.esm.service.exception.ext.NoSuchObjectException;
+import org.springframework.hateoas.PagedModel;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
+/**
+ * Specifies a tag CRD business logic.
+ */
 public interface TagService {
-    TagDto add(TagDto tagDto);
+    /**
+     * Issue a tag create operation.
+     *
+     * @param tagDto - dto containing tag to be added.
+     * @return fully initialized dto. Tag id is provided.
+     * @throws InvalidRequestException - if input dto state is invalid.
+     *                                 For validation requirements see {@link com.epam.esm.service.util.validator.ArgumentValidator}
+     */
+    TagDto create(TagDto tagDto);
 
-    Optional<TagDto> get(Integer id);
+    /**
+     * Issue a tag read-by-id operation.
+     *
+     * @param id - id value, associated with an object.
+     * @return - fully initialized dto, associated with input id.
+     * @throws NoSuchObjectException - if there is no object, associated with the provided id.
+     */
+    TagDto read(Long id);
 
-    void delete(Integer id);
+    /**
+     * Issue a tag read-by-option operation.
+     *
+     * @param options - object, containing options, the search tags must conform to.
+     * @return - list of fully initialized dtos, conformed to provided options.
+     */
+    PagedModel<TagDto> read(SearchOptions options);
 
-    Optional<List<TagDto>> get(Map<String, String> options);
+
+    /**
+     * Issue a tag read-most-used-of-user-with-highest-order-cost operation
+     *
+     * @return - fully initialized dto, associated with input id.
+     * @throws NoSuchObjectException - if there is no object, associated with the provided id.
+     */
+    TagDto readMostUsedTagOfUserWithHighestOrderCost();
+
+    /**
+     * Issue a tag delete operation.
+     *
+     * @param id - id value, associated with an object.
+     * @throws NoSuchObjectException - if there is no object, associated with the provided id.
+     */
+    void delete(Long id);
 }

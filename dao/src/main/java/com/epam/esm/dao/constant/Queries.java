@@ -1,89 +1,179 @@
 package com.epam.esm.dao.constant;
 
-final public class Queries {
-    public final static class Certificate{
-        public static final String INSERT = "INSERT INTO " + TableNames.Certificate.TABLE_NAME
-                + " (" + TableNames.Certificate.NAME + ", "
-                + TableNames.Certificate.DESCRIPTION + ", "
-                + TableNames.Certificate.PRICE + ", "
-                + TableNames.Certificate.CREATE_DATE + ", "
-                + TableNames.Certificate.LAST_UPDATE_DATE + ", "
-                + TableNames.Certificate.DURATION + ") "
-                + " VALUES (?, ?, ?, ?, ?, ?);";
-        public static final String SELECT = "SELECT * FROM "
-                + TableNames.Certificate.TABLE_NAME + " as c"
-                + " left join " + TableNames.CertificateTag.TABLE_NAME + " as ct"
-                + " ON c." + TableNames.Certificate.ID
-                + " = ct." + TableNames.CertificateTag.CERTIFICATE_ID
-                + " left join " + TableNames.Tag.TABLE_NAME + " as t"
-                + " ON ct." + TableNames.CertificateTag.TAG_ID
-                + " = t." + TableNames.Tag.ID
-                + " WHERE c."
-                + TableNames.Certificate.NAME
-                + " LIKE ? AND c."
-                + TableNames.Certificate.DESCRIPTION
-                + " LIKE ? AND ifnull(t."
-                + TableNames.Tag.NAME
-                + ", '') LIKE ?"
-                + " GROUP BY c." + TableNames.Certificate.ID + ";";
-        public static final String SELECT_BY_ID = "SELECT * FROM "
-                + TableNames.Certificate.TABLE_NAME
-                + " WHERE "
-                + TableNames.Certificate.ID
-                + " = ?;";
-        public static final String DELETE = "DELETE FROM " + TableNames.Certificate.TABLE_NAME + " WHERE " + TableNames.Certificate.ID + " = ?";
+public final class Queries {
 
-        public static final String UPDATE = "UPDATE " + TableNames.Certificate.TABLE_NAME
-                + " SET "
-                + TableNames.Certificate.NAME + "=?, "
-                + TableNames.Certificate.DESCRIPTION + "=?, "
-                + TableNames.Certificate.PRICE + "=?, "
-                + TableNames.Certificate.CREATE_DATE + "=?, "
-                + TableNames.Certificate.LAST_UPDATE_DATE + "=?, "
-                + TableNames.Certificate.DURATION + "=? "
-                + " WHERE " + TableNames.Certificate.ID + " = ?";
+    private Queries() {
     }
 
-    public final static class Tag{
-        public static final String INSERT = "INSERT INTO " + TableNames.Tag.TABLE_NAME
-                + " (" + TableNames.Tag.NAME + ") "
-                + " VALUES (?);";
-        public static final String SELECT = "SELECT * FROM "
-                + TableNames.Tag.TABLE_NAME
-                + " WHERE "
-                + TableNames.Tag.NAME
-                + " LIKE ?;";
-        public static final String SELECT_BY_ID = "SELECT * FROM "
-                + TableNames.Tag.TABLE_NAME
-                + " WHERE "
-                + TableNames.Tag.ID
-                + " = ?;";
-        public static final String SELECT_BY_CERTIFICATE_ID = "SELECT"
-                + " t." + TableNames.Tag.NAME
-                + ", t." + TableNames.Tag.ID
-                + " FROM "
-                + TableNames.Tag.TABLE_NAME+ " as t "
-                + "INNER JOIN " + TableNames.CertificateTag.TABLE_NAME  + " as gct"
-                + " ON t." + TableNames.Tag.ID + " = gct." + TableNames.CertificateTag.TAG_ID
-                + " WHERE"
-                + " gct." + TableNames.CertificateTag.CERTIFICATE_ID
-                + " = ?;";
+    public static final class Certificate {
+        private static final String SELECT = "select";
+        private static final String SELECT_ENTITIES = " c ";
+        private static final String SELECT_COUNT = " count(c) ";
+        private static final String FROM = "from Certificate as c ";
+        private static final String JOIN = "left join c.tags as t ";
+        private static final String WHERE =
+                "where ( c.name like concat('%',?1,'%') ) ";
+        private static final String DESCRIPTION_SEARCH_CONDITION =
+                "and ( c.description like concat('%',?2,'%') ) " +
+                        "and c.isSearchable = true ";
+        private static final String TAG_CONDITION =
+                "and ( t.name in ?3 ) " +
+                        "group by c.id " +
+                        "having cast(count(t.name) as integer)>=?4 ";
+        private static final String ORDER = "order by c.name";
+        private static final String INVERSE_ORDER = " DESC";
+        private static final String DELETE = "update Certificate set searchable = false where id = ?1";
 
-        public static final String DELETE = "DELETE FROM " + TableNames.Tag.TABLE_NAME + " WHERE " + TableNames.Tag.ID + " = ?";
+        private Certificate() {
+        }
+
+        public static String getSelectSearchableQuery(boolean buildWithTags, boolean isInverted) {
+            StringBuilder builder = new StringBuilder();
+            buildQuery(builder, buildWithTags, SELECT_ENTITIES);
+            buildOrder(isInverted, builder);
+            return builder.toString();
+        }
+
+        public static String getSelectByNameQuery() {
+            return SELECT + SELECT_ENTITIES + FROM + WHERE;
+        }
+
+        public static String getCountQuery(boolean buildWithTags) {
+            StringBuilder builder = new StringBuilder();
+            buildQuery(builder, buildWithTags, SELECT_COUNT);
+            return builder.toString();
+        }
+
+        public static String getDeleteQuery() {
+            return DELETE;
+        }
+
+        private static void buildQuery(StringBuilder builder, boolean buildWithTags, String selectable) {
+            builder.append(SELECT)
+                    .append(selectable)
+                    .append(FROM);
+            if (buildWithTags) {
+                builder.append(JOIN);
+            }
+            builder.append(WHERE);
+            builder.append(DESCRIPTION_SEARCH_CONDITION);
+            if (buildWithTags) {
+                builder.append(TAG_CONDITION);
+            }
+        }
+
+        private static void buildOrder(boolean isInverted, StringBuilder builder) {
+            builder.append(ORDER);
+            if (isInverted) {
+                builder.append(INVERSE_ORDER);
+            }
+        }
     }
 
-    public final static class CertificateTag{
-        public static final String INSERT = "INSERT INTO " + TableNames.CertificateTag.TABLE_NAME
-                + " (" + TableNames.CertificateTag.CERTIFICATE_ID + ", " + TableNames.CertificateTag.TAG_ID + ") "
-                + " VALUES (?,?);";
-        public static final String SELECT_BY_CERTIFICATE_ID = "SELECT * FROM "
-                + TableNames.CertificateTag.TABLE_NAME
-                + "JOIN " + TableNames.Tag.TABLE_NAME
-                + "ON " + TableNames.CertificateTag.TABLE_NAME +  TableNames.CertificateTag.TAG_ID
-                + " = " + TableNames.Tag.TABLE_NAME + "." + TableNames.Tag.ID
-                + " WHERE "
-                + TableNames.CertificateTag.CERTIFICATE_ID
-                + " = ?;";
-        public static final String DELETE = "DELETE FROM " + TableNames.CertificateTag.TABLE_NAME + " WHERE " + TableNames.CertificateTag.CERTIFICATE_ID + " = ?";
+    public static final class Tag {
+        private static final String SELECT = "select t " +
+                "from Tag " +
+                "t where t.name like concat('%',?1,'%') " +
+                "order by t.name";
+        private static final String COUNT = "select count(t)" +
+                "from Tag " +
+                "t where t.name like concat('%',?1,'%') " +
+                "order by t.name";
+        private static final String INVERSE_ORDER = " DESC";
+
+        private static final String SELECT_MOST_WIDELY_USED_TAG_OF_USER_WITH_HIGHEST_COST_OF_ORDERS =
+                "select t.id, t.name from " +
+                        "(select sct.id as id from " +
+                        "(select u.id as id " +
+                        "from users u left join orders o on o.user = u.id group by u.id " +
+                        "order by sum(o.cost) desc limit 1 " +
+                        ") as sct " +
+                        ") as u " +
+                        "left join orders as o on o.user = u.id " +
+                        "left join certificates as c on c.id = o.certificate_id " +
+                        "left join certificate_tag as ct on ct.certificate_id = c.id " +
+                        "left join tags as t on t.id = ct.tag_id " +
+                        "group by t.id " +
+                        "order by count(o.id) desc limit 1;";
+
+
+        private Tag() {
+        }
+
+        public static String getSelectQuery(boolean isInverted) {
+            return isInverted ? SELECT : SELECT + INVERSE_ORDER;
+        }
+
+        public static String getCountQuery() {
+            return COUNT;
+        }
+
+        public static String getComplexSelectQuery() {
+            return SELECT_MOST_WIDELY_USED_TAG_OF_USER_WITH_HIGHEST_COST_OF_ORDERS;
+        }
     }
+
+    public static final class User {
+        private static final String SELECT = "select u " +
+                "from User u " +
+                "where u.name like concat('%', ?1, '%') " +
+                "order by u.name";
+        private static final String COUNT = "select count(u) " +
+                "from User u " +
+                "where u.name like concat('%', ?1, '%')";
+
+        private User() {
+        }
+
+        public static String getSelectQuery() {
+            return SELECT;
+        }
+
+        public static String getCountQuery() {
+            return COUNT;
+        }
+    }
+
+    public static final class Order {
+        //queries components
+        private static final String ORDER_BY = "order by o.timestamp";
+        private static final String FROM = "from Order o ";
+        private static final String JOIN_WHERE_BY_USER_D = "join o.user u " +
+                "where u.id = ?1 ";
+
+        //queries
+        private static final String SELECT = "select o " +
+                FROM +
+                ORDER_BY;
+        private static final String COUNT = "select count(o) " +
+                FROM;
+        private static final String SELECT_BY_USER_ID = "select o " +
+                FROM +
+                JOIN_WHERE_BY_USER_D +
+                ORDER_BY;
+        private static final String COUNT_BY_USER_ID = "select count(o) " +
+                FROM +
+                JOIN_WHERE_BY_USER_D +
+                ORDER_BY;
+
+        private Order() {
+        }
+
+        public static String getSelectQuery() {
+            return SELECT;
+        }
+
+        public static String getCountQuery() {
+            return COUNT;
+        }
+
+        public static String getSelectByUserIdQuery() {
+            return SELECT_BY_USER_ID;
+        }
+
+        public static String getCountByUserIdQuery() {
+            return COUNT_BY_USER_ID;
+        }
+    }
+
 }

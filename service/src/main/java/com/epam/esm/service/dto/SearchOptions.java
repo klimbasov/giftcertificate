@@ -1,16 +1,42 @@
 package com.epam.esm.service.dto;
 
-import com.epam.esm.service.constant.SortingNames;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.springframework.hateoas.RepresentationModel;
+
+import static java.util.Objects.isNull;
 
 @Value
+@EqualsAndHashCode(callSuper = false)
 @Builder(toBuilder = true)
-public class SearchOptions {
+public class SearchOptions extends RepresentationModel<SearchOptions> {
     @Builder.Default
-    private final String SORTING = SortingNames.INCR;
+    String sorting = "";
     @Builder.Default
-    private final String SUBNAME = "";
+    String subname = "";
     @Builder.Default
-    private final String SUBDESCRIPTION = "";
+    String subdescription = "";
+    @Builder.Default
+    int pageNumber = 1;
+    @Builder.Default
+    int pageSize = 20;
+
+
+    public String getSorting() {
+        return isNull(sorting) ? "" : sorting;
+    }
+
+    public String getSubname() {
+        return isNull(subname) ? "" : subname;
+    }
+
+    public String getSubdescription() {
+        return isNull(subdescription) ? "" : subdescription;
+    }
+
+    public Integer getPageSize() {
+        return isNull(pageSize) || (pageSize <= 0) ? 20 : pageSize;
+    }
 }
+

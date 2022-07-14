@@ -2,74 +2,93 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.constant.Queries;
-import com.epam.esm.dao.constant.TableNames;
 import com.epam.esm.dao.entity.Certificate;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.exception.DaoException;
-import com.epam.esm.dao.mappers.CertificateRowMapper;
-import com.epam.esm.dao.mappers.TagRowMapper;
-import com.epam.esm.dao.parametersources.CertificateParameterSource;
-import com.epam.esm.dao.parametersources.TagParameterSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.util.Arrays;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+import static java.util.Objects.nonNull;
+
+@Repository
+@Transactional
 public class TagDaoImpl implements TagDao {
 
-    JdbcTemplate template;
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     @Autowired
-    public TagDaoImpl(DataSource dataSource){
-        this.template = new JdbcTemplate(dataSource);
+    public TagDaoImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     @Override
-    public Tag create(Tag tag) throws DaoException {
-        return read(tag.getName())
-                .orElseGet(()-> {
-                    Number id = new SimpleJdbcInsert(template)
-                            .withTableName(TableNames.Tag.TABLE_NAME)
-                            .usingGeneratedKeyColumns(TableNames.Tag.ID)
-                            .usingColumns(TableNames.Tag.NAME)
-                            .executeAndReturnKey(new TagParameterSource(tag));
-                    return Arrays.asList(tag.toBuilder().id(id.intValue()).build());
-                }).stream()
-                .filter(tag1 -> tag.getName().equals(tag1.getName()))
-                .findAny()
-                .orElseThrow(()->new DaoException("Internal error."));
+    public Optional<Tag> create(Tag tag) {
+        return createIfDoesNotExist(tag);
     }
 
     @Override
-    public Optional<Tag> read(int id) {
-        Tag tag = template.queryForObject(Queries.Tag.SELECT_BY_ID, new TagRowMapper(), id);
-        return Optional.ofNullable(tag);
+    public Optional<Tag> read(long id) {
+        return Optional.ofNullable(entityManager.find(Tag.class, id));
     }
 
     @Override
-    public Optional<List<Tag>> read(String name) {
-        List<Tag> entityList = template.query(Queries.Tag.SELECT, new TagRowMapper(), name);
-        return Optional.of(entityList);
+    public List<Tag> read(String name, int offset, int limit, boolean ordering) {
+        return entityManager.createQuery(Queries.Tag.getSelectQuery(ordering), Tag.class)
+                .setParameter(1, name)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
     }
 
     @Override
-    public Optional<List<Tag>> readByCertificateId(Integer certificateId) {
-        List<Tag> entityList = template.query(Queries.Tag.SELECT_BY_CERTIFICATE_ID, new TagRowMapper(), certificateId);
-        return Optional.of(entityList);
+    public int delete(long id) {
+        int retVal = 0;
+        Tag tag = entityManager.find(Tag.class, id);
+        if (nonNull(tag)) {
+            entityManager.remove(tag);
+            removeAssociations(tag);
+            retVal = 1;
+        }
+        return retVal;
     }
 
     @Override
-    public void delete(int id) {
-        template.update(Queries.Tag.DELETE, id);
+    public long count(String name) {
+        return entityManager.createQuery(Queries.Tag.getCountQuery(), Long.class)
+                .setParameter(1, name)
+                .getSingleResult();
+    }
+
+    @Override
+    public Optional<Tag> readMostUsedTagOfUserWithHighestOrderCost() {
+        return Optional.ofNullable((Tag) entityManager.createNativeQuery(Queries.Tag.getComplexSelectQuery(), Tag.class).getSingleResult());
+    }
+
+    private Optional<Tag> createIfDoesNotExist(Tag tag) {
+        Optional<Tag> optional = Optional.empty();
+        if (doseNotExist(tag)) {
+            entityManager.persist(tag);
+            optional = Optional.of(tag);
+        }
+        return optional;
+    }
+
+    private boolean doseNotExist(Tag tag) {
+        return !entityManager.createQuery(Queries.Tag.getSelectQuery(false))
+                .setParameter(1, tag.getName())
+                .getResultList().stream().findAny()
+                .isPresent();
+    }
+
+    private void removeAssociations(Tag tag) {
+        for (Certificate certificate : tag.getCertificates()) {
+            certificate.getTags().remove(tag);
+        }
     }
 }
