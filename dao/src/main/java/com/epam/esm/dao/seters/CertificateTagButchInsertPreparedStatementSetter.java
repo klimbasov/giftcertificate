@@ -1,20 +1,18 @@
 package com.epam.esm.dao.seters;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.util.CollectionUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Set;
-
-import static java.util.Objects.isNull;
 
 public class CertificateTagButchInsertPreparedStatementSetter implements BatchPreparedStatementSetter {
     Integer[] tagIds;
     int certificateId;
 
-    public CertificateTagButchInsertPreparedStatementSetter(int certificateId, Set<Integer> tagIds){
-        if(isNull(tagIds) || tagIds.isEmpty()){
+    public CertificateTagButchInsertPreparedStatementSetter(int certificateId, Set<Integer> tagIds) {
+        if (CollectionUtils.isEmpty(tagIds)) {
             throw new IllegalArgumentException();
         }
         this.certificateId = certificateId;

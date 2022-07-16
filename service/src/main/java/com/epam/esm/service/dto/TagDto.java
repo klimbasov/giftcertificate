@@ -1,14 +1,16 @@
 package com.epam.esm.service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
+
+import java.io.Serializable;
 
 @Value
 @AllArgsConstructor
-public class TagDto {
-    @NonNull
-    Integer id;
-    @NonNull
-    String name;
+@Builder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class TagDto implements Serializable {
+    @Builder.Default
+    Integer id = null;
+    @Builder.Default
+    String name = null;
 }

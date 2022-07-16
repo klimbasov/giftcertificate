@@ -17,7 +17,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,7 +42,7 @@ class CertificateDaoImplTest {
         Certificate expected = CertificateGenerator.generate();
         Certificate actual;
 
-        int id = certificateDao.create(expected, new HashSet<>()).getId();
+        int id = certificateDao.create(expected, new HashSet<>()).get().getId();
         expected = expected.toBuilder().id(id).build();
         actual = template.queryForObject(Queries.Certificate.SELECT_BY_ID, new CertificateRowMapper(), id);
 
@@ -63,7 +65,7 @@ class CertificateDaoImplTest {
     @Test
     void testReadByNameAndDescriptionAndTag() {
         List<Certificate> certificateList = new LinkedList<>();
-        Certificate.CertificateBuilder builder = CertificateGenerator.generate().toBuilder();
+        Certificate.CertificateBuilder<?, ?> builder = CertificateGenerator.generate().toBuilder();
         certificateList.add(builder.name("cert1").build());
         certificateList.add(builder.name("cert2").build());
 
@@ -75,7 +77,7 @@ class CertificateDaoImplTest {
             return certificate.toBuilder().id(id).build();
         }).collect(Collectors.toList());
 
-        actual = certificateDao.read("%cer%", "%%", "%%").get();
+        actual = certificateDao.read("%cer%", "%%", "%%");
 
         assertIterableEquals(expected, actual);
     }
@@ -127,7 +129,7 @@ class CertificateDaoImplTest {
         Certificate certificate = null;
         List<Certificate> searchedCertificates = template.query(Queries.Certificate.SELECT_BY_ID, new CertificateRowMapper(), id);
 
-        if(!searchedCertificates.isEmpty()){
+        if (!searchedCertificates.isEmpty()) {
             certificate = searchedCertificates.get(0);
         }
         return certificate;

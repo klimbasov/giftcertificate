@@ -1,22 +1,28 @@
 package com.epam.esm.service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
-import java.sql.Date;
 import java.util.List;
 
 @Value
 @AllArgsConstructor
 @Builder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CertificateDto {
-    Integer id;
-    List<String> tags;
-    String name;
-    String description;
-    Float price;
-    Integer duration;
-    Date createDate;
-    Date lastUpdateDate;
+    @Builder.Default
+    Integer id = null;
+    @Builder.Default
+    String name = null;
+    @Builder.Default
+    String description = null;
+    @Builder.Default
+    Float price = null;
+    @Builder.Default
+    Integer duration = null;
+    @Builder.Default
+    String createDate = null;
+    @Builder.Default
+    String lastUpdateDate = null;
+    @Builder.Default
+    List<String> tags = null;
 }

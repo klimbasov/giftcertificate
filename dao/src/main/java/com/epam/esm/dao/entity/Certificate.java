@@ -1,16 +1,18 @@
 package com.epam.esm.dao.entity;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
+import lombok.Value;
 import lombok.experimental.SuperBuilder;
 
-import java.sql.Date;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Value
 @SuperBuilder(toBuilder = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Certificate extends Entity{
+public class Certificate extends Entity {
     @NonNull
     String name;
     @NonNull
@@ -20,7 +22,7 @@ public class Certificate extends Entity{
     @NonNull
     Integer duration;
     @NonNull
-    Date createDate;
+    LocalDateTime createDate;
     @NonNull
-    Date lastUpdateDate;
+    LocalDateTime lastUpdateDate;
 }
