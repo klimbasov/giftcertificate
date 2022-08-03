@@ -10,8 +10,7 @@ import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
 import com.epam.esm.service.exception.ext.ObjectAlreadyExistException;
 import com.epam.esm.service.util.mapper.Mapper;
-import com.epam.esm.service.util.sorting.SortingDirection;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ import static com.epam.esm.service.constant.ExceptionMessages.NO_SUCH_OBJECT;
 import static com.epam.esm.service.constant.ExceptionMessages.OBJECT_ALREADY_EXISTS;
 import static com.epam.esm.service.util.pagination.Pager.toPage;
 import static com.epam.esm.service.util.pagination.validator.PageValidator.validate;
-import static com.epam.esm.service.util.sorting.SortingDirection.getSortingDirectionByAlias;
+import static com.epam.esm.service.util.sorting.SortingUtil.isSortingInverted;
 import static com.epam.esm.service.util.validator.ArgumentValidator.CertificateDtoValidator.validateCreate;
 import static com.epam.esm.service.util.validator.ArgumentValidator.CertificateDtoValidator.validateUpdatePreMap;
 import static com.epam.esm.service.util.validator.ArgumentValidator.SearchOptionsValidator.validateRead;
@@ -34,18 +33,12 @@ import static com.epam.esm.service.util.validator.ArgumentValidator.validateRead
 import static java.util.Objects.nonNull;
 
 @Service
+@RequiredArgsConstructor
 public class CertificateServiceImpl implements CertificateService {
 
     private final CertificateDao dao;
     private final TagDao tagDao;
     private final Mapper<Certificate, CertificateDto> mapper;
-
-    @Autowired
-    public CertificateServiceImpl(CertificateDao certificateDao, TagDao tagDao, Mapper<Certificate, CertificateDto> mapper) {
-        this.dao = certificateDao;
-        this.tagDao = tagDao;
-        this.mapper = mapper;
-    }
 
     @Override
     public CertificateDto create(CertificateDto certificateDto) {
@@ -115,10 +108,6 @@ public class CertificateServiceImpl implements CertificateService {
         if (certificateDto.getPrice() != 0) {
             certificate.setPrice(certificateDto.getPrice());
         }
-    }
-
-    private boolean isSortingInverted(SearchOptions searchOptions) {
-        return getSortingDirectionByAlias(searchOptions.getSorting()) == SortingDirection.INCR;
     }
 
     private Set<Tag> syncTags(@NonNull CertificateDto certificateDto, @NonNull Certificate oldCertificate) {

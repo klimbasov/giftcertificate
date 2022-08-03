@@ -6,12 +6,17 @@ import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.SearchOptions;
 import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.exception.ext.NoSuchObjectException;
+import com.epam.esm.service.util.mapper.impl.UserDetailEntityMapper;
 import com.epam.esm.service.util.mapper.impl.UserDtoEntityMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.epam.esm.service.constant.ExceptionMessages.NO_SUCH_OBJECT;
 import static com.epam.esm.service.util.pagination.Pager.toPage;
@@ -20,17 +25,13 @@ import static com.epam.esm.service.util.validator.ArgumentValidator.SearchOption
 import static com.epam.esm.service.util.validator.ArgumentValidator.validateRead;
 
 @Service
-public class UserServiceImpl implements UserService {
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService, UserDetailsService {
 
-    private final UserDao userDao;
+    private final UserDao dao;
     private final UserDtoEntityMapper mapper;
 
-    @Autowired
-    public UserServiceImpl(UserDao userDao, UserDtoEntityMapper mapper) {
-        this.userDao = userDao;
-        this.mapper = mapper;
-    }
-
+    private final UserDetailEntityMapper detailEntityMapper;
     @Override
     public PagedModel<UserDto> read(SearchOptions options) {
         validateRead(options);
@@ -40,16 +41,22 @@ public class UserServiceImpl implements UserService {
         int offset = pageSize * (options.getPageNumber() - 1);
         String name = options.getSubname();
 
-        long totalElements = userDao.count(name);
+        long totalElements = dao.count(name);
         validate(totalElements, pageSize, pageNumber);
-        List<User> entities = userDao.read(offset, options.getPageSize(), name);
+        List<User> entities = dao.read(offset, options.getPageSize(), name);
         return toPage(mapper.mapToModels(entities), pageNumber, pageSize, totalElements);
     }
 
     @Override
     public UserDto read(long id) {
         validateRead(id);
-        User user = userDao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
+        User user = dao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
         return mapper.mapToModel(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> user = dao.readByStrictName(username);
+        return user.map(detailEntityMapper::mapToModel).orElse(null);
     }
 }

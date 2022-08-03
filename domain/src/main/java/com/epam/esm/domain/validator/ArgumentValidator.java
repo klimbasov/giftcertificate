@@ -1,0 +1,207 @@
+package com.epam.esm.domain.validator;
+
+import com.epam.esm.service.dto.CertificateDto;
+import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.service.dto.SearchOptions;
+import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.exception.ext.InvalidRequestException;
+import org.apache.commons.lang3.compare.ComparableUtils;
+import org.springframework.lang.NonNull;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Predicate;
+
+import static java.util.Objects.isNull;
+
+public class ArgumentValidator {
+    private static final int MIN_ID = 1;
+
+    private ArgumentValidator() {
+    }
+
+    public static void validateRead(Long id) {
+        validateId(id);
+    }
+
+    public static void validateDelete(Long id) {
+        validateId(id);
+    }
+
+    private static void validateId(Long id) {
+        throwIfNull(id);
+        throwInconsistentId(id);
+    }
+
+    private static void throwInconsistentId(long id) {
+        if (id <= 0) {
+            throw new InvalidRequestException();
+        }
+    }
+
+    private static void throwIfNull(Object o) {
+        if (isNull(o)) {
+            throw new InvalidRequestException("null passed to the parameters");
+        }
+    }
+
+    public static class CertificateDtoValidator {
+        private static final int MIN_NAME_LENGTH = 3;
+        private static final int MAX_NAME_LENGTH = 25;
+        private static final int MIN_DESCRIPTION_LENGTH = 3;
+        private static final int MAX_DESCRIPTION_LENGTH = 50;
+        private static final int MIN_DURATION = 7;
+        private static final int MAX_DURATION = 256;
+        private static final float MIN_PRICE = 0.03f;
+        private static final float MAX_PRICE = 10000f;
+
+        private CertificateDtoValidator() {
+        }
+
+        public static void validateCreate(CertificateDto certificateDto) {
+            throwIfNull(certificateDto);
+            throwFieldInconsistencyCreate(certificateDto);
+        }
+
+        public static void validateUpdatePreMap(CertificateDto certificateDto) {
+            throwIfNull(certificateDto);
+            throwFieldInconsistencyUpdate(certificateDto);
+        }
+
+        private static void throwFieldInconsistencyCreate(CertificateDto certificateDto) {
+            if (hasFieldInconsistencyCreate(certificateDto)) {
+                throw new InvalidRequestException(Messages.ILLEGAL_ARGUMENT);
+            }
+        }
+
+        private static void throwFieldInconsistencyUpdate(@NonNull CertificateDto certificateDto) {
+            if (hasNullFieldRequiredUpdate(certificateDto)
+                    || hasFieldInconsistencyUpdate(certificateDto)) {
+                throw new InvalidRequestException(Messages.ILLEGAL_ARGUMENT);
+            }
+        }
+
+        private static boolean hasNullFieldRequiredRead(@NonNull CertificateDto certificateDto) {
+            return Arrays.stream(new Object[]{certificateDto.getName(),
+                    certificateDto.getDescription(),
+                    certificateDto.getPrice(),
+                    certificateDto.getDuration()}).anyMatch(Objects::isNull);
+        }
+
+        private static boolean hasFieldInconsistencyUpdate(@NonNull CertificateDto certificateDto) {
+            return certificateDto.getId() < MIN_ID;
+        }
+
+        private static boolean hasNullFieldRequiredUpdate(@NonNull CertificateDto certificateDto) {
+            return Arrays.stream(new Object[]{certificateDto.getName(),
+                    certificateDto.getDescription(),
+                    certificateDto.getPrice(),
+                    certificateDto.getDuration(),
+                    certificateDto.getCreateDate(),
+                    certificateDto.getLastUpdateDate(),
+                    certificateDto.getTags()}).allMatch(Objects::isNull);
+        }
+
+        private static boolean hasFieldInconsistencyCreate(@NonNull CertificateDto certificateDto) {
+            return hasNullFieldRequiredRead(certificateDto)
+                    || certificateDto.getName().length() > MAX_NAME_LENGTH
+                    || certificateDto.getName().length() < MIN_NAME_LENGTH
+                    || certificateDto.getDuration() > MAX_DURATION
+                    || certificateDto.getDuration() < MIN_DURATION
+                    || certificateDto.getDescription().length() > MAX_DESCRIPTION_LENGTH
+                    || certificateDto.getDescription().length() < MIN_DESCRIPTION_LENGTH
+                    || certificateDto.getPrice() < MIN_PRICE
+                    || certificateDto.getPrice() > MAX_PRICE;
+        }
+    }
+
+    public static class OrderDtoValidator {
+
+        private OrderDtoValidator() {
+        }
+
+        public static void validateCreate(OrderDto orderDto) {
+            throwIfNull(orderDto);
+            throwFieldInconsistencyCreate(orderDto);
+        }
+
+        private static void throwFieldInconsistencyCreate(OrderDto orderDto) {
+            if (hasFieldInconsistencyCreate(orderDto)) {
+                throw new InvalidRequestException(Messages.ILLEGAL_ARGUMENT);
+            }
+        }
+
+        private static boolean hasFieldInconsistencyCreate(@NonNull OrderDto orderDto) {
+            return orderDto.getCertificateId() < MIN_ID
+                    || orderDto.getUserId() < MIN_ID;
+        }
+    }
+
+    public static class TagDtoValidator {
+        private static final int MIN_NAME_LENGTH = 3;
+        private static final int MAX_NAME_LENGTH = 25;
+
+        private TagDtoValidator() {
+        }
+
+        public static void validateCreate(TagDto tagDto) {
+            throwIfNull(tagDto);
+            throwFieldInconsistencyCreate(tagDto);
+        }
+
+        private static void throwFieldInconsistencyCreate(TagDto tagDto) {
+            if (hasFieldInconsistencyCreate(tagDto)) {
+                throw new InvalidRequestException(Messages.ILLEGAL_ARGUMENT);
+            }
+        }
+
+        private static boolean hasNullFieldRequiredRead(@NonNull TagDto tagDto) {
+            return isNull(tagDto.getName());
+        }
+
+        private static boolean hasFieldInconsistencyCreate(@NonNull TagDto tagDto) {
+            return hasNullFieldRequiredRead(tagDto)
+                    || tagDto.getName().length() > MAX_NAME_LENGTH
+                    || tagDto.getName().length() < MIN_NAME_LENGTH;
+        }
+    }
+
+    public static class SearchOptionsValidator {
+        private static final Predicate<Integer> pageNumPred = ComparableUtils.le(0);
+
+        private SearchOptionsValidator() {
+        }
+
+        public static void validateRead(SearchOptions searchOptions) {
+            throwIfNull(searchOptions);
+            throwFieldInconsistencyRead(searchOptions);
+        }
+
+        private static void throwFieldInconsistencyRead(@NonNull SearchOptions searchOptions) {
+            if (hasNullFieldRequiredRead(searchOptions)
+                    || hasFieldInconcictency(searchOptions)) {
+                throw new InvalidRequestException(Messages.ILLEGAL_ARGUMENT);
+            }
+        }
+
+        private static boolean hasFieldInconcictency(SearchOptions searchOptions) {
+            return pageNumPred.test(searchOptions.getPageNumber())
+                    || pageNumPred.test(searchOptions.getPageSize());
+        }
+
+        private static boolean hasNullFieldRequiredRead(@NonNull SearchOptions searchOptions) {
+            return isNull(searchOptions.getSorting())
+                    || isNull(searchOptions.getSubdescription())
+                    || isNull(searchOptions.getSubname());
+        }
+    }
+
+}
+
+class Messages {
+
+    static final String ILLEGAL_ARGUMENT = "some required params were null.";
+
+    private Messages() {
+    }
+}

@@ -10,5 +10,9 @@ repositories {
 
 dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-hateoas', version: '2.7.0'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'com.auth0:java-jwt:4.0.0'
+
+    implementation 'org.projectlombok:lombok:1.18.22'
     implementation project(":service")
 }

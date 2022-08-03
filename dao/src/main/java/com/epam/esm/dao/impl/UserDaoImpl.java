@@ -44,4 +44,11 @@ public class UserDaoImpl implements UserDao {
                 .setParameter(1, name)
                 .getSingleResult();
     }
+
+    @Override
+    public Optional<User> readByStrictName(String name) {
+        return manager.createQuery(Queries.User.getSelectStrictQuery(), User.class)
+                .setParameter(1, name)
+                .getResultList().stream().findAny();
+    }
 }

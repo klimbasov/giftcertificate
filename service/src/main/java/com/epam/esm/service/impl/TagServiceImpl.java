@@ -28,12 +28,12 @@ import static com.epam.esm.service.util.validator.ArgumentValidator.validateRead
 @Service
 public class TagServiceImpl implements TagService {
 
-    private final TagDao tagDao;
+    private final TagDao dao;
     private final Mapper<Tag, TagDto> mapper;
 
     @Autowired
     public TagServiceImpl(TagDao tagDao, Mapper<Tag, TagDto> mapper) {
-        this.tagDao = tagDao;
+        this.dao = tagDao;
         this.mapper = mapper;
     }
 
@@ -41,7 +41,7 @@ public class TagServiceImpl implements TagService {
     public TagDto create(TagDto dto) {
         validateCreate(dto);
         String tagName = dto.getName();
-        Tag tag = tagDao.create(new Tag(tagName))
+        Tag tag = dao.create(new Tag(tagName))
                 .orElseThrow(() -> new ObjectAlreadyExistException(OBJECT_ALREADY_EXISTS));
         return mapper.mapToModel(tag);
     }
@@ -49,7 +49,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDto read(Long id) {
         validateRead(id);
-        Tag entity = tagDao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
+        Tag entity = dao.read(id).orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
         return mapper.mapToModel(entity);
     }
 
@@ -61,22 +61,22 @@ public class TagServiceImpl implements TagService {
         int pageNumber = options.getPageNumber();
         int offset = pageSize * (options.getPageNumber() - 1);
 
-        long totalElements = tagDao.count(options.getSubname());
+        long totalElements = dao.count(options.getSubname());
         validate(totalElements, pageSize, pageNumber);
-        List<Tag> entities = tagDao.read(options.getSubname(), offset, options.getPageSize(), isSortingInverted(options));
+        List<Tag> entities = dao.read(options.getSubname(), offset, options.getPageSize(), isSortingInverted(options));
         return toPage(mapper.mapToModels(entities), pageNumber, pageSize, totalElements);
     }
 
     @Override
     public TagDto readMostUsedTagOfUserWithHighestOrderCost() {
-        Tag entity = tagDao.readMostUsedTagOfUserWithHighestOrderCost().orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
+        Tag entity = dao.readMostUsedTagOfUserWithHighestOrderCost().orElseThrow(() -> new NoSuchObjectException(NO_SUCH_OBJECT));
         return mapper.mapToModel(entity);
     }
 
     @Override
     public void delete(Long id) {
         validateDelete(id);
-        throwIfNoEffect(tagDao.delete(id));
+        throwIfNoEffect(dao.delete(id));
     }
 
     private boolean isSortingInverted(SearchOptions searchOptions) {

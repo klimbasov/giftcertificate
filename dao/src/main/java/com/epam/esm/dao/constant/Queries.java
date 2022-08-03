@@ -1,10 +1,14 @@
 package com.epam.esm.dao.constant;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 public final class Queries {
 
     private Queries() {
     }
 
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Certificate {
         private static final String SELECT = "select";
         private static final String SELECT_ENTITIES = " c ";
@@ -23,9 +27,6 @@ public final class Queries {
         private static final String ORDER = "order by c.name";
         private static final String INVERSE_ORDER = " DESC";
         private static final String DELETE = "update Certificate set searchable = false where id = ?1";
-
-        private Certificate() {
-        }
 
         public static String getSelectSearchableQuery(boolean buildWithTags, boolean isInverted) {
             StringBuilder builder = new StringBuilder();
@@ -70,6 +71,7 @@ public final class Queries {
         }
     }
 
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Tag {
         private static final String SELECT = "select t " +
                 "from Tag " +
@@ -96,10 +98,6 @@ public final class Queries {
                         "group by t.id " +
                         "order by count(o.id) desc limit 1;";
 
-
-        private Tag() {
-        }
-
         public static String getSelectQuery(boolean isInverted) {
             return isInverted ? SELECT : SELECT + INVERSE_ORDER;
         }
@@ -113,6 +111,7 @@ public final class Queries {
         }
     }
 
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class User {
         private static final String SELECT = "select u " +
                 "from User u " +
@@ -122,8 +121,33 @@ public final class Queries {
                 "from User u " +
                 "where u.name like concat('%', ?1, '%')";
 
-        private User() {
+        private static final String SELECT_STRICT = "select u " +
+                "from User u " +
+                "where u.name like ?1 " +
+                "order by u.name";
+
+        public static String getSelectQuery() {
+            return SELECT;
         }
+
+        public static String getCountQuery() {
+            return COUNT;
+        }
+
+        public static String getSelectStrictQuery() {
+            return SELECT_STRICT;
+        }
+    }
+
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static final class Role {
+        private static final String SELECT = "select r " +
+                "from Role u " +
+                "where r.name like concat('%', ?1, '%') " +
+                "order by r.name";
+        private static final String COUNT = "select count(u) " +
+                "from User u " +
+                "where u.name like concat('%', ?1, '%')";
 
         public static String getSelectQuery() {
             return SELECT;

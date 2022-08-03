@@ -36,4 +36,12 @@ public interface UserDao {
      * @return quantity of elements
      */
     long count(String name);
+
+    /**
+     * Issue read-by-strict-name operation.
+     *
+     * @param name - name of user
+     * @return optional of user entity, associated with name.
+     */
+    Optional<User> readByStrictName(String name);
 }
